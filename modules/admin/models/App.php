@@ -48,9 +48,9 @@ class App extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
-            'application_id' => 'Application ID',
-            'operated_id' => 'Operated ID',
-            'is_del' => 'Is Del',
+            'application_id' => '应用 Id',
+            'operated_id' => '操作人 ID',
+            'is_del' => '是否删除',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
@@ -71,7 +71,7 @@ class App extends ActiveRecord
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 100,
+                'pageSize' => 2,
             ],
         ]);
 
