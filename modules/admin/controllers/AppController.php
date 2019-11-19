@@ -29,13 +29,18 @@ use yiiplus\appversion\modules\admin\models\App;
  */
 class AppController extends \yii\base\Controller
 {
+    /**
+     * app管理首页
+     */
     public function actionIndex()
     {
         $searchModel = new App();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
+        $app = new App();
         return $this->render('index', [
-            'dataProvider' => $dataProvider
+            'dataProvider' => $dataProvider,
+            'app' => $app
         ]);
     }
 }

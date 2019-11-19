@@ -15,6 +15,7 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\bootstrap\Alert;
+use yii\widgets\ActiveForm;
 use admin\modules\member\models\UserBan;
 
 $this->title = 'App管理';
@@ -37,9 +38,9 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
     <div class="box-header">
         <h3 class="box-title">App 列表</h3>
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
-            <a href="/appversion/app/index" class="btn btn-sm btn-success" title="新增">
+            <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#add-app" title="新增">
                 <i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增</span>
-            </a>
+            </button>
         </div>
     </div>
 
@@ -79,7 +80,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'template' => '{view}',
                                 'buttons' => [
                                     'view' => function ($url, $model, $key) {
-                                        return Html::a('用户详情', ['view', 'id' => $key], ['class' => 'btn btn-success',]);
+                                        return Html::a('编辑', ['view', 'id' => $key], ['class' => 'btn btn-sm btn-success',]);
                                     }
                                 ],
                             ],
@@ -89,6 +90,33 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                     ]); ?>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- APP版本创建窗口 -->
+<div class="modal fade" id="add-app" tabindex="-1" role="dialog" aria-labelledby="add-app" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">App 新增</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <?php $form = ActiveForm::begin([
+                'action' => ['store'],
+                'method' => 'post',
+            ]); ?>
+            <div class="modal-body">
+                    <?= $form->field($app, 'name')->textInput()->hint('请输入你的应用名称') ?>
+                    <?= $form->field($app, 'application_id')->textInput()->hint('输入应用id')  ?>
+            </div>
+            <div class="modal-footer">
+                <?= Html::button('关闭', ["class" => "btn btn-secondary", "data-dismiss"=>"modal"]) ?>
+                <?= Html::submitButton('新增', ['class' => 'btn btn-primary']) ?>
+            </div>
+            <?php ActiveForm::end(); ?>
         </div>
     </div>
 </div>

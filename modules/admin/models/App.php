@@ -19,6 +19,9 @@ use yii\data\ActiveDataProvider;
  */
 class App extends ActiveRecord
 {
+    public $name;
+
+    public $application_id;
     /**
      * {@inheritdoc}
      */
@@ -33,6 +36,7 @@ class App extends ActiveRecord
     public function rules()
     {
         return [
+            [['name', 'application_id'], 'required'],
             [['operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['application_id'], 'string', 'max' => 255],
