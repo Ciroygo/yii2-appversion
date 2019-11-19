@@ -24,6 +24,7 @@ common/config/main.php
 ````
 
 ````$xslt
+
  将 build: ./manifests/dockerfiles/cgi
 
   修改为  image: leslack0819/lsc_cgi_test01

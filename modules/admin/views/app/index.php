@@ -167,8 +167,8 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             'is_del',
                             [
                                 'attribute'=>'created_at',
-                                'value'=>function($model){// 形参为此行记录对象
-                                    return date("Y-m-d H:i:s",$model->created_at);
+                                'value' => function ($model) {
+                                    return date("Y-m-d H:i:s", $model->created_at);
                                 }
                             ],
                         ],
