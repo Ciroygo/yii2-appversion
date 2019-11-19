@@ -51,9 +51,9 @@ class App extends ActiveRecord
             'application_id' => '应用 Id',
             'operated_id' => '操作人 ID',
             'is_del' => '是否删除',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'deleted_at' => 'Deleted At',
+            'created_at' => '创建时间',
+            'updated_at' => '更新时间',
+            'deleted_at' => '删除时间',
         ];
     }
 
