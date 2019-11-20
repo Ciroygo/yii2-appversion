@@ -1,7 +1,21 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
+use common\models\system\AdminUser;
+use common\models\User;
 use Yii;
 use yii\data\ActiveDataProvider;
 
@@ -19,9 +33,6 @@ use yii\data\ActiveDataProvider;
  */
 class App extends ActiveRecord
 {
-    public $name;
-
-    public $application_id;
     /**
      * {@inheritdoc}
      */
@@ -37,12 +48,16 @@ class App extends ActiveRecord
     {
         return [
             [['name', 'application_id'], 'required'],
-            [['operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['application_id'], 'string', 'max' => 255],
-            [['operated_id'], 'unique'],
+            ['application_id', 'match', 'pattern'=>'/^[a-zA-Z][a-zA-Z0-9_.]{4,29}$/', 'message'=>'5-30位字母、数字或“_”“.”, 字母开头']
         ];
     }
+//
+//    public function attributes() {
+//        return array_merge(parent::attributes(), git['operator']);
+//    }
 
     /**
      * {@inheritdoc}
@@ -51,14 +66,20 @@ class App extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
+            'name' => '应用名',
             'application_id' => '应用 Id',
-            'operated_id' => '操作人 ID',
+            'operated_id' => '操作人 Id',
+            'operator' => '操作人',
             'is_del' => '是否删除',
             'created_at' => '创建时间',
             'updated_at' => '更新时间',
             'deleted_at' => '删除时间',
         ];
+    }
+
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 
     /**
@@ -75,7 +96,7 @@ class App extends ActiveRecord
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 2,
+                'pageSize' => 10,
             ],
         ]);
 
@@ -83,5 +104,13 @@ class App extends ActiveRecord
 
         $this->load($params, null);
         return $dataProvider;
+    }
+
+    /**
+     * 版本关联
+     */
+    public function getVersions()
+    {
+        return $this->hasMany(Version::className(), ['app_id' => 'id']);
     }
 }

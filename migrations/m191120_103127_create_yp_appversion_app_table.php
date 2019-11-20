@@ -5,7 +5,7 @@ use yii\db\Migration;
 /**
  * 添加 app 管理表
  */
-class m191116_064031_create_yp_appversion_app extends Migration
+class m191120_103127_create_yp_appversion_app_table extends Migration
 {
     /**
      * 执行迁移
@@ -24,7 +24,7 @@ class m191116_064031_create_yp_appversion_app extends Migration
             "PRIMARY KEY(`id`)"
         ], "ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '反作弊用户表'");
 
-        $this->createIndex('unique_index_uid', 'yp_appversion_app', 'operated_id', true);
+        $this->createIndex('index_operated_id', '{{%yp_appversion_app}}', 'operated_id', false);
     }
 
     /**

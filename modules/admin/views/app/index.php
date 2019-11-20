@@ -65,8 +65,12 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             ],
                             'name',
                             'application_id',
-                            'operated_id',
-                            'is_del',
+                            [
+                                'attribute'=>'operator',
+                                'value' => function ($model) {
+                                    return $model->operator->username ?? null;
+                                }
+                            ],
                             [
                                 'attribute'=>'created_at',
                                 'value' => function ($model) {
@@ -76,16 +80,17 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             [
                                 'class' => 'yii\grid\ActionColumn',
                                 'header' => '操作',
-                                'headerOptions' => ['width' => '10'],
-                                'template' => '{view}',
-                                'buttons' => [
-                                    'view' => function ($url, $model, $key) {
-                                        return Html::a('编辑', ['view', 'id' => $key], ['class' => 'btn btn-sm btn-success',]);
-                                    }
-                                ],
+//                                'headerOptions' => ['width' => '10'],
+//                                'template' => '{view}',
+//                                'buttons' => [
+//                                    'view' => function ($url, $model, $key) {
+//                                        return Html::a('版本管理', ['/appversion/version/index', 'id' => $key], ['class' => 'btn btn-sm btn-secondary',]);
+//                                    }
+//                                ],
                             ],
                         ],
-                        'layout'=>"{items}\n{summary}{pager}",
+                        'showFooter' => false,
+                        'layout'=>"{items}<div class='col-sm-11'>{summary}<div class='pull-right'>{pager}</div></div>",
                         'tableOptions' => ['class' => 'table table-hover']
                     ]); ?>
                 </div>
@@ -120,3 +125,31 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
         </div>
     </div>
 </div>
+<script>
+    //点击复选框改变当前行背景色
+    $('input[name="selection[]"]').click(function() {
+        var tr = $('#tr_'+this.value);
+        this.checked ? tr.addClass('tr_selected') : tr.removeClass('tr_selected');
+    });
+    //删除选中的所有记录
+    function delall(url) {
+        var ckbox = $('input[name="selection[]"]:checked'), ids = [];
+        $.each(ckbox, function(i, o) {
+            ids.push(o.value);
+        });
+        if(ids.length <= 0) return alert('请至少选择一条数据！');
+
+        var okay = confirm('此操作将删除所有选中的数据，是否确认操作？');
+        if(!okay) return;
+
+        ids = ids.join(',');
+        $.post(url, {'ids': ids}, function(ret) {
+            if(ret.ok) {
+                alert('恭喜你，操作成功！');
+                window.location.reload();
+            } else {
+                alert(ret.msg ? ret.msg : '对不起，操作失败！');
+            }
+        }, 'json');
+    }
+</script>
