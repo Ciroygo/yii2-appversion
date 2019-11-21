@@ -1,5 +1,17 @@
 <?php
-mark
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
+
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
@@ -10,7 +22,14 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * AppController implements the CRUD actions for App model.
+ * AppController 应用管理
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  */
 class AppController extends Controller
 {
@@ -65,8 +84,11 @@ class AppController extends Controller
     public function actionCreate()
     {
         $model = new App();
-
+        var_dump(Yii::$app->request->post());
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+
+            var_dump($model->toArray());
+            die();
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

@@ -46,9 +46,14 @@ class AppSearch extends App
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
         ]);
 
-        $this->load($params);
+//        $query->where([self::tableName() . '.is_del' => self::NOT_DELETED]);
+
+        $this->load($params, null);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
