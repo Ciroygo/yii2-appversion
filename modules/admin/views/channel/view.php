@@ -4,14 +4,14 @@ use yii\helpers\Html;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model yiiplus\appversion\modules\admin\models\Version */
+/* @var $model yiiplus\appversion\modules\admin\models\Channel */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Versions', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Channels', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
-<div class="version-view">
+<div class="channel-view">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -30,15 +30,9 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'app_id',
-            'code',
-            'min_code',
             'name',
-            'min_name',
-            'type',
             'platform',
-            'scope',
-            'desc:ntext',
+            'code',
             'status',
             'operated_id',
             'is_del',

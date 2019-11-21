@@ -5,12 +5,11 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\App */
 
-$this->title = 'Update App: ' . $model->name;
+$this->title = 'Create App';
 $this->params['breadcrumbs'][] = ['label' => 'Apps', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="app-update">
+<div class="app-create">
 
     <h1><?= Html::encode($this->title) ?></h1>
 

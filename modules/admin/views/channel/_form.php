@@ -4,17 +4,21 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model yiiplus\appversion\modules\admin\models\App */
+/* @var $model yiiplus\appversion\modules\admin\models\Channel */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="app-form">
+<div class="channel-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'application_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'platform')->textInput() ?>
+
+    <?= $form->field($model, 'code')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'status')->textInput() ?>
 
     <?= $form->field($model, 'operated_id')->textInput() ?>
 

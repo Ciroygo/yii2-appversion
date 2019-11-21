@@ -1,68 +1,127 @@
 <?php
-/**
- * 萌股 - 二次元潮流聚集地
- *
- * PHP version 7
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- */
 
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
-use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Version;
+use yiiplus\appversion\modules\admin\models\VersionSearch;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 
 /**
- * VersionController 应用管理
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
+ * VersionController implements the CRUD actions for Version model.
  */
 class VersionController extends Controller
 {
     /**
-     * Version 管理首页
+     * {@inheritdoc}
+     */
+    public function behaviors()
+    {
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['POST'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Lists all Version models.
+     * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new App();
+        $searchModel = new VersionSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        $app = new App();
         return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
-    public function actionStore()
+    /**
+     * Displays a single Version model.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionView($id)
     {
-        $app = new App();
-        $params = Yii::$app->request->post();
-        if ($app->load(Yii::$app->request->post(), null) && $app->validate()) {
-            $app->save();
-        } else {
-            Yii::$app->getSession()->setFlash('error', "数据验证失败，请检查后重新输入");
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    /**
+     * Creates a new Version model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionCreate()
+    {
+        $model = new Version();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
         }
-        // 不管成功与否，将信息存入 flash ，都走向白名单首页
-        return $this->redirect('/appversion/app/index');
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
 
-    public function actionUpdate()
+    /**
+     * Updates an existing Version model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionUpdate($id)
     {
+        $model = $this->findModel($id);
 
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
-    public function actionDelete()
+    /**
+     * Deletes an existing Version model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    public function actionDelete($id)
     {
+        $this->findModel($id)->delete();
 
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Finds the Version model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Version the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Version::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

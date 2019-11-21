@@ -32,3 +32,8 @@ common/config/main.php
 
   修改为  image: leslack0819/lsc_cgi_test01
 ````
+
+```$xslt
+模板生成路径
+../runtime/tmp-extensions/yii2-appversion/modules/admin/views
+```

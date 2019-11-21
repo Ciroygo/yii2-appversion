@@ -4,17 +4,33 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model yiiplus\appversion\modules\admin\models\App */
+/* @var $model yiiplus\appversion\modules\admin\models\Version */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="app-form">
+<div class="version-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
+    <?= $form->field($model, 'app_id')->textInput() ?>
+
+    <?= $form->field($model, 'code')->textInput() ?>
+
+    <?= $form->field($model, 'min_code')->textInput() ?>
+
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'application_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'min_name')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'type')->textInput() ?>
+
+    <?= $form->field($model, 'platform')->textInput() ?>
+
+    <?= $form->field($model, 'scope')->textInput() ?>
+
+    <?= $form->field($model, 'desc')->textarea(['rows' => 6]) ?>
+
+    <?= $form->field($model, 'status')->textInput() ?>
 
     <?= $form->field($model, 'operated_id')->textInput() ?>
 

@@ -1,30 +1,26 @@
 <?php
-/**
- * 萌股 - 二次元潮流聚集地
- *
- * PHP version 7
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- */
 
 namespace yiiplus\appversion\modules\admin\models;
 
-use common\models\system\AdminUser;
-use common\models\User;
 use Yii;
-use yii\data\ActiveDataProvider;
+use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Channel;
+use yiiplus\appversion\modules\admin\models\ChannelVersion;
 
 /**
  * This is the model class for table "yp_appversion_version".
  *
  * @property int $id 主键id
- * @property string $name 应用名称
- * @property string $application_id 应用名称
+ * @property int $app_id 应用关联id
+ * @property int $code 版本号 7152
+ * @property int $min_code 最小版本号 7000
+ * @property string $name 版本号 格式 1.1.1
+ * @property string $min_name 最小版本号 格式 1.1.1
+ * @property int $type 更新类型 1 一般更新 2 强制更新 3 静默更新 4 可忽略更新 5 静默可忽略更新
+ * @property int $platform 平台 1 iOS 2 安卓 
+ * @property int $scope 发布范围（1 全量、2 白名单、3 ip发布）
+ * @property string $desc 版本描述 最长字符
+ * @property int $status 发布范围（1 全量、2 白名单、3 ip发布）
  * @property int $operated_id 用户id
  * @property int $is_del 状态；0正常；1主动删除；2后台删除
  * @property int $created_at 创建时间
@@ -33,9 +29,49 @@ use yii\data\ActiveDataProvider;
  */
 class Version extends ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'yp_appversion_version';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['desc'], 'string'],
+            [['name', 'min_name'], 'string', 'max' => 64],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'app_id' => 'App ID',
+            'code' => 'Code',
+            'min_code' => 'Min Code',
+            'name' => 'Name',
+            'min_name' => 'Min Name',
+            'type' => 'Type',
+            'platform' => 'Platform',
+            'scope' => 'Scope',
+            'desc' => 'Desc',
+            'status' => 'Status',
+            'operated_id' => 'Operated ID',
+            'is_del' => 'Is Del',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'deleted_at' => 'Deleted At',
+        ];
     }
 
     /**

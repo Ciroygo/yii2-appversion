@@ -1,39 +1,16 @@
 <?php
-/**
- * 萌股 - 二次元潮流聚集地
- *
- * PHP version 7
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- */
 
 namespace yiiplus\appversion\modules\admin\models;
 
-use common\models\system\AdminUser;
-use common\models\User;
 use Yii;
-use yii\data\ActiveDataProvider;
 
 /**
- * ChannelVersion 渠道表
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- *
- * This is the model class for table "yp_appversion_channel".
+ * This is the model class for table "yp_appversion_channel_version".
  *
  * @property int $id 主键id
- * @property string $name 应用名称
- * @property string $application_id 应用名称
+ * @property int $version_id 版本关联id
+ * @property int $channel_id 渠道主键id
+ * @property string $url 安卓对应该渠道的 APK 下载地址， iOS 为 appstore 地址
  * @property int $operated_id 用户id
  * @property int $is_del 状态；0正常；1主动删除；2后台删除
  * @property int $created_at 创建时间
@@ -42,8 +19,40 @@ use yii\data\ActiveDataProvider;
  */
 class ChannelVersion extends ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'yp_appversion_channel_version';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['version_id', 'channel_id', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['url'], 'string', 'max' => 255],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'version_id' => 'Version ID',
+            'channel_id' => 'Channel ID',
+            'url' => 'Url',
+            'operated_id' => 'Operated ID',
+            'is_del' => 'Is Del',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'deleted_at' => 'Deleted At',
+        ];
     }
 }

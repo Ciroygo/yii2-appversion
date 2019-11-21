@@ -1,39 +1,19 @@
 <?php
-/**
- * 萌股 - 二次元潮流聚集地
- *
- * PHP version 7
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- */
 
 namespace yiiplus\appversion\modules\admin\models;
 
-use common\models\system\AdminUser;
-use common\models\User;
 use Yii;
-use yii\data\ActiveDataProvider;
+use yiiplus\appversion\modules\admin\models\ChannelVersion;
+use yiiplus\appversion\modules\admin\models\Version;
 
 /**
- * Channel 渠道表
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- *
  * This is the model class for table "yp_appversion_channel".
  *
  * @property int $id 主键id
- * @property string $name 应用名称
- * @property string $application_id 应用名称
+ * @property string $name 渠道名称
+ * @property int $platform 平台 1 iOS 2 安卓
+ * @property string $code 渠道码 安卓官方包渠道码为official，其他渠道则另加，iOS仅有一个渠道为 official
+ * @property int $status 状态 1 正常 2 废弃
  * @property int $operated_id 用户id
  * @property int $is_del 状态；0正常；1主动删除；2后台删除
  * @property int $created_at 创建时间
@@ -42,9 +22,42 @@ use yii\data\ActiveDataProvider;
  */
 class Channel extends ActiveRecord
 {
+    /**
+     * {@inheritdoc}
+     */
     public static function tableName()
     {
         return 'yp_appversion_channel';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['platform', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['name', 'code'], 'string', 'max' => 64],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'name' => 'Name',
+            'platform' => 'Platform',
+            'code' => 'Code',
+            'status' => 'Status',
+            'operated_id' => 'Operated ID',
+            'is_del' => 'Is Del',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'deleted_at' => 'Deleted At',
+        ];
     }
 
     public function getChannelVersions()

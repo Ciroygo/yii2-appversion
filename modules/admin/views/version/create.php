@@ -5,12 +5,11 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
 
-$this->title = 'Update Version: ' . $model->name;
+$this->title = 'Create Version';
 $this->params['breadcrumbs'][] = ['label' => 'Versions', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="version-update">
+<div class="version-create">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
