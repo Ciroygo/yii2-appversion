@@ -85,7 +85,7 @@ class ChannelController extends Controller
     {
         $model = new Channel();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -105,7 +105,8 @@ class ChannelController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            $model->link('operator', Yii::$app);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
