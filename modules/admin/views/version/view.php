@@ -41,10 +41,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'desc:ntext',
             'status',
             'operated_id',
-            'is_del',
-            'created_at',
-            'updated_at',
-            'deleted_at',
         ],
     ]) ?>
 

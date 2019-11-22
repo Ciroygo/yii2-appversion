@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Version;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
@@ -26,17 +27,13 @@ use yiiplus\appversion\modules\admin\models\App;
 
     <?= $form->field($model, 'min_name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->textInput() ?>
+    <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
 
-    <?= $form->field($model, 'platform')->textInput() ?>
+    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
 
-    <?= $form->field($model, 'scope')->textInput() ?>
+    <?= $form->field($model, 'scope')->dropdownList(Version::SCOPE_TYPE) ?>
 
     <?= $form->field($model, 'desc')->textarea(['rows' => 6]) ?>
-
-    <?= $form->field($model, 'status')->textInput() ?>
-
-    <?= $form->field($model, 'operated_id')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

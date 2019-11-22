@@ -2,6 +2,7 @@
 
 namespace yiiplus\appversion\modules\admin\models;
 
+use common\models\system\AdminUser;
 use Yii;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\Channel;
@@ -29,6 +30,16 @@ use yiiplus\appversion\modules\admin\models\ChannelVersion;
  */
 class Version extends ActiveRecord
 {
+    const UPDATE_TYPE = [
+        1 => '一般更新',
+        2 => '强制更新',
+        3 => '静默更新',
+    ];
+
+    const SCOPE_TYPE = [
+        1 => '全量更新'
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -100,5 +111,15 @@ class Version extends ActiveRecord
     {
         return $this->hasMany(Channel::className(), ['id' => 'channel_id'])
             ->via('channelVersions');
+    }
+
+    /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 }

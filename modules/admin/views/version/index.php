@@ -37,7 +37,7 @@ $this->params['breadcrumbs'][] = $this->title;
             //'scope',
             //'desc:ntext',
             //'status',
-            //'operated_id',
+            'operated_id',
             //'is_del',
             //'created_at',
             //'updated_at',

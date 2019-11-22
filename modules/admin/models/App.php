@@ -20,6 +20,15 @@ use yiiplus\appversion\modules\admin\models\Version;
  */
 class App extends ActiveRecord
 {
+    const PLATFORM_OPTIONS = [
+        self::ANDROID => 'Android',
+        self::IOS => 'iOS'
+    ];
+
+    const ANDROID = 1;
+
+    const IOS = 2;
+
     /**
      * {@inheritdoc}
      */

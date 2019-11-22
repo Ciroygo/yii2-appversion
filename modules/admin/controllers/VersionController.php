@@ -85,7 +85,7 @@ class VersionController extends Controller
     {
         $model = new Version();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -105,7 +105,7 @@ class VersionController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
