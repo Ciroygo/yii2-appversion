@@ -84,11 +84,7 @@ class AppController extends Controller
     public function actionCreate()
     {
         $model = new App();
-        var_dump(Yii::$app->request->post());
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
-            var_dump($model->toArray());
-            die();
+        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) &&$model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -108,7 +104,7 @@ class AppController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 

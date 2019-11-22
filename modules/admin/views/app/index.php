@@ -57,14 +57,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         'filterModel' => $searchModel,
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
-                            [
-                                'header' => '操作id',
-                                'attribute' => 'id',
-                                'filter' => true,
-                                'value' => function ($data) {
-                                    return $data->id;
-                                }
-                            ],
                             'name',
                             'application_id',
                             [

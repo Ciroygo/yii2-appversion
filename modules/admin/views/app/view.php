@@ -36,7 +36,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'is_del',
             'created_at',
             'updated_at',
-            'deleted_at',
         ],
     ]) ?>
 

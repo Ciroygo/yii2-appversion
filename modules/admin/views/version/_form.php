@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yiiplus\appversion\modules\admin\models\App;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
@@ -10,9 +11,12 @@ use yii\widgets\ActiveForm;
 
 <div class="version-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin();?>
 
-    <?= $form->field($model, 'app_id')->textInput() ?>
+    <?php
+        $apps = App::find()->select(['id', 'name'])->asArray()->all();
+    ?>
+    <?= $form->field($model, 'app_id')->dropdownList(array_combine(array_column($apps,'id'), array_column($apps,'name')), ['prompt'=>'选择应用']); ?>
 
     <?= $form->field($model, 'code')->textInput() ?>
 
@@ -33,14 +37,6 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'status')->textInput() ?>
 
     <?= $form->field($model, 'operated_id')->textInput() ?>
-
-    <?= $form->field($model, 'is_del')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
-
-    <?= $form->field($model, 'updated_at')->textInput() ?>
-
-    <?= $form->field($model, 'deleted_at')->textInput() ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

@@ -2,6 +2,7 @@
 
 namespace yiiplus\appversion\modules\admin\models;
 
+use common\models\system\AdminUser;
 use Yii;
 use yiiplus\appversion\modules\admin\models\Version;
 
@@ -33,9 +34,11 @@ class App extends ActiveRecord
     public function rules()
     {
         return [
-            [['operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['name', 'application_id'], 'required'],
+            [['is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['application_id'], 'string', 'max' => 255],
+            ['application_id', 'match', 'pattern'=>'/^[a-zA-Z][a-zA-Z0-9_.]{4,29}$/', 'message'=>'5-30位字母、数字或“_”“.”, 字母开头']
         ];
     }
 
@@ -46,9 +49,10 @@ class App extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'application_id' => 'Application ID',
-            'operated_id' => 'Operated ID',
+            'name' => '应用名',
+            'application_id' => '应用 ID',
+            'operated_id' => '操作人 ID',
+            'operator' => '操作人',
             'is_del' => 'Is Del',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -62,5 +66,15 @@ class App extends ActiveRecord
     public function getVersions()
     {
         return $this->hasMany(Version::className(), ['app_id' => 'id']);
+    }
+
+    /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 }

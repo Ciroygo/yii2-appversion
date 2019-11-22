@@ -7,7 +7,7 @@ use yii\widgets\Pjax;
 /* @var $searchModel yiiplus\appversion\modules\admin\models\VersionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Versions';
+$this->title = '版本管理';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="version-index">

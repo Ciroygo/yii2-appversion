@@ -11,6 +11,8 @@ use yiiplus\appversion\modules\admin\models\App;
  */
 class AppSearch extends App
 {
+    public $operator;
+
     /**
      * {@inheritdoc}
      */
