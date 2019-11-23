@@ -70,4 +70,14 @@ class Channel extends ActiveRecord
         return $this->hasMany(Version::className(), ['id' => 'version_id'])
             ->via('channelVersions');
     }
+
+        /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
+    }
 }
