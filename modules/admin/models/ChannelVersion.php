@@ -46,13 +46,23 @@ class ChannelVersion extends ActiveRecord
         return [
             'id' => 'ID',
             'version_id' => 'Version ID',
-            'channel_id' => 'Channel ID',
-            'url' => 'Url',
+            'channel_id' => '渠道',
+            'url' => '地址',
             'operated_id' => 'Operated ID',
             'is_del' => 'Is Del',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
         ];
+    }
+
+    /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getChannel()
+    {
+        return $this->hasOne(Channel::className(), ['id' => 'channel_id']);
     }
 }

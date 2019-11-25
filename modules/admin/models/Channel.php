@@ -71,7 +71,7 @@ class Channel extends ActiveRecord
             ->via('channelVersions');
     }
 
-        /**
+    /**
      * 管理员关联
      *
      * @return \yii\db\ActiveQuery

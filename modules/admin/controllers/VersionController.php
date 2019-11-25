@@ -15,6 +15,7 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yiiplus\appversion\modules\admin\models\ChannelVersion;
 use yiiplus\appversion\modules\admin\models\Version;
 use yiiplus\appversion\modules\admin\models\VersionSearch;
 use yii\web\Controller;
@@ -84,13 +85,20 @@ class VersionController extends Controller
     public function actionCreate()
     {
         $model = new Version();
+        $channelVersion = new ChannelVersion();
 
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && $channelVersion->load(Yii::$app->request->post(), null)) {
+            $model->operated_id = Yii::$app->user->id ?? 0;
+            $channelVersion->operated_id = Yii::$app->user->id ?? 0;
+
+            $model->save();
+            $model->link('channelVersions', $channelVersion);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('create', [
             'model' => $model,
+            'channelVersion' => $channelVersion
         ]);
     }
 
@@ -105,12 +113,20 @@ class VersionController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
+        $channelVersions = $model->channelVersions;
+//var_dump(Yii::$app->request->post());die();
+        if ($model->load(Yii::$app->request->post(), null) && $channelVersions[0]->load(Yii::$app->request->post(), null)) {
+            $model->operated_id = Yii::$app->user->id ?? 0;
+            $channelVersions[0]->operated_id = Yii::$app->user->id ?? 0;
+
+            $model->save();
+            $model->link('channelVersions', $channelVersions[0]);
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'channelVersions' => $channelVersions
         ]);
     }
 

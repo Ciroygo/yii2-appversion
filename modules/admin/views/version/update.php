@@ -4,6 +4,7 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
+/* @var $channelVersions yiiplus\appversion\modules\admin\models\ChannelVersion */
 
 $this->title = 'Update Version: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Versions', 'url' => ['index']];
@@ -16,6 +17,7 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <?= $this->render('_form', [
         'model' => $model,
+        'channelVersions' => $channelVersions
     ]) ?>
 
 </div>

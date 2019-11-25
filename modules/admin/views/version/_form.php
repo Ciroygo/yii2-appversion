@@ -4,10 +4,12 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\Version;
+use yiiplus\appversion\modules\admin\models\Channel;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $channelVersions yii\widgets\ActiveForm */
 ?>
 
 <div class="version-form">
@@ -30,6 +32,23 @@ use yiiplus\appversion\modules\admin\models\Version;
     <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
 
     <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
+
+    <?php
+        $channels = Channel::find()->select(['id', 'name'])->asArray()->all();
+    ?>
+
+
+    <?php foreach ($channelVersions as $key => $channelVersion) { ?>
+
+        <?= $form->field($channelVersions[$key], "channel_id")->label('渠道 '. $channelVersion->channel->name)
+            ->dropdownList(array_combine(array_column($channels,'id'), array_column($channels,'name')), ['prompt'=>'选择渠道']); ?>
+        <?= $form->field($channelVersions[$key], 'url')->textInput() ?>
+
+    <?php
+        }
+    ?>
+
+
 
     <?= $form->field($model, 'scope')->dropdownList(Version::SCOPE_TYPE) ?>
 
