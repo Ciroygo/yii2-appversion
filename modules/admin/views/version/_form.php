@@ -40,9 +40,9 @@ use yiiplus\appversion\modules\admin\models\Channel;
 
     <?php foreach ($channelVersions as $key => $channelVersion) { ?>
 
-        <?= $form->field($channelVersions[$key], "channel_id")->label('渠道 '. $channelVersion->channel->name)
+        <?= $form->field($channelVersions[$key], "channel_id[]")->label('渠道 '. $channelVersion->channel->name)
             ->dropdownList(array_combine(array_column($channels,'id'), array_column($channels,'name')), ['prompt'=>'选择渠道']); ?>
-        <?= $form->field($channelVersions[$key], 'url')->textInput() ?>
+        <?= $form->field($channelVersions[$key], 'url[]')->textInput() ?>
 
     <?php
         }
