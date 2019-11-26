@@ -47,7 +47,7 @@ class ChannelVersion extends ActiveRecord
             'id' => 'ID',
             'version_id' => 'Version ID',
             'channel_id' => '渠道',
-            'url' => '地址',
+            'url' => '链接地址',
             'operated_id' => 'Operated ID',
             'is_del' => 'Is Del',
             'created_at' => 'Created At',

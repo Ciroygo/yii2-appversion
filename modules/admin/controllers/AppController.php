@@ -34,7 +34,9 @@ use yii\filters\VerbFilter;
 class AppController extends Controller
 {
     /**
-     * {@inheritdoc}
+     * 过滤器
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -49,8 +51,9 @@ class AppController extends Controller
     }
 
     /**
-     * Lists all App models.
-     * @return mixed
+     *  app 管理首页
+     *
+     * @return string
      */
     public function actionIndex()
     {
@@ -64,9 +67,9 @@ class AppController extends Controller
     }
 
     /**
-     * Creates a new App model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * app 创建
+     *
+     * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
@@ -80,12 +83,13 @@ class AppController extends Controller
         ]);
     }
 
+
     /**
-     * Updates an existing App model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * app 应用修改
+     *
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -101,25 +105,32 @@ class AppController extends Controller
     }
 
     /**
-     * Deletes an existing App model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * 应用删除
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
+        $app = $this->findModel($id);
+
         $this->findModel($id)->delete();
+        // todo 删除版本信息、渠道关联
+//        $app->unlinkAll('versions', true);
+//        $app->unlinkAll('versions', true);
 
         return $this->redirect(['index']);
     }
 
     /**
-     * Finds the App model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return App the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * 根据主键 id 查找模型，如果不存在则返回 404 错误
+     *
+     * @param $id
+     * @return App|null
+     * @throws NotFoundHttpException
      */
     protected function findModel($id)
     {

@@ -34,8 +34,11 @@ use yii\filters\VerbFilter;
  */
 class VersionController extends Controller
 {
+
     /**
-     * {@inheritdoc}
+     * 过滤器
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -50,8 +53,9 @@ class VersionController extends Controller
     }
 
     /**
-     * Lists all Version models.
-     * @return mixed
+     * 版本管理首页
+     *
+     * @return string
      */
     public function actionIndex()
     {
@@ -65,22 +69,9 @@ class VersionController extends Controller
     }
 
     /**
-     * Displays a single Version model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Version model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * 创建版本
+     *
+     * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
@@ -93,7 +84,7 @@ class VersionController extends Controller
 
             $model->save();
             $model->link('channelVersions', $channelVersion);
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect('index');
         }
 
         return $this->render('create', [
@@ -103,11 +94,11 @@ class VersionController extends Controller
     }
 
     /**
-     * Updates an existing Version model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * 版本更新
+     *
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
@@ -131,11 +122,13 @@ class VersionController extends Controller
     }
 
     /**
-     * Deletes an existing Version model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * 版本删除
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -145,11 +138,11 @@ class VersionController extends Controller
     }
 
     /**
-     * Finds the Version model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Version the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * 根据主键 id 查找模型，如果不存在则返回 404 错误
+     *
+     * @param $id
+     * @return Version|null
+     * @throws NotFoundHttpException
      */
     protected function findModel($id)
     {

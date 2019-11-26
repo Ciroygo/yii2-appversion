@@ -37,7 +37,8 @@ class Version extends ActiveRecord
     ];
 
     const SCOPE_TYPE = [
-        1 => '全量更新'
+        1 => '全量更新',
+        2 => '一般更新'
     ];
 
     /**

@@ -80,4 +80,10 @@ class Channel extends ActiveRecord
     {
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
+
+    public static function getChannelOptions($platform)
+    {
+        $channels = self::find()->select(['id', 'name'])->where(['platform' => $platform])->asArray()->all();
+        return array_combine(array_column($channels,'id'), array_column($channels,'name'));
+    }
 }

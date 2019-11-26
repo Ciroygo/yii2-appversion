@@ -36,9 +36,11 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
     ]);
 }
 ?>
+
 <div class="box">
     <div class="box-header">
         <h3 class="box-title"><?= $this->title ?></h3>
+
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
             <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
                 ['create'], ['class' => 'btn btn-sm btn-success']) ?>
@@ -57,6 +59,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         'filterModel' => $searchModel,
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
+                            'id',
                             'name',
                             [
                                 'attribute'=>'operator',
@@ -75,11 +78,11 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'template' => '{version-apple} {version-android} {update} {delete}',
                                 'buttons' => [
                                     'version-apple' => function ($url, $model, $key) {
-                                        $url = "/appversion/version";
+                                        $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=1";
                                         return Html::a('<span class="fa fa-apple"></span>', $url, ['title' => '苹果版本管理']);
                                     },
                                     'version-android' => function ($url, $model, $key) {
-                                        $url = "/appversion/version";
+                                        $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
                                         return Html::a('<span class="fa fa-android"></span>', $url, ['title' => '安卓版本管理']);
                                     },
                                 ],
