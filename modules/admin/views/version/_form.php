@@ -42,7 +42,7 @@ use yii\widgets\Pjax;
     ?>
 
     <?php //Pjax::begin(); ?>
-    <div class="text-bold margin-bottom">渠道添加: </div>
+    <div class="text-bold margin-bottom">渠道: </div>
     <?php foreach ($channelVersions as $key => $channelVersion) { ?>
 
         <div class="panel panel-info">

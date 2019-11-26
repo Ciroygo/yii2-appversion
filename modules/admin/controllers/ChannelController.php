@@ -33,8 +33,11 @@ use yii\filters\VerbFilter;
  */
 class ChannelController extends Controller
 {
+
     /**
-     * {@inheritdoc}
+     * 过滤器
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -49,8 +52,9 @@ class ChannelController extends Controller
     }
 
     /**
-     * Lists all Channel models.
-     * @return mixed
+     * 渠道首页
+     *
+     * @return string
      */
     public function actionIndex()
     {
@@ -64,29 +68,17 @@ class ChannelController extends Controller
     }
 
     /**
-     * Displays a single Channel model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Channel model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
+     * 渠道创建
+     *
+     * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
         $model = new Channel();
 
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', '渠道创建成功');
+            return $this->redirect('index');
         }
 
         return $this->render('create', [
@@ -95,18 +87,19 @@ class ChannelController extends Controller
     }
 
     /**
-     * Updates an existing Channel model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * 渠道添加
+     *
+     * @param $id
+     * @return string|\yii\web\Response
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', '更新成功');
+            return $this->redirect('index');
         }
 
         return $this->render('update', [
@@ -115,11 +108,32 @@ class ChannelController extends Controller
     }
 
     /**
-     * Deletes an existing Channel model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * 废弃与启用
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionStatusToggle($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = ($model->status != 0) ? 0 : 2;
+
+        $model->save();
+
+        Yii::$app->getSession()->setFlash('success', '操作成功');
+        return $this->redirect('index');
+    }
+
+    /**
+     * 渠道删除
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -129,11 +143,11 @@ class ChannelController extends Controller
     }
 
     /**
-     * Finds the Channel model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Channel the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
+     * 根据主键 id 查找模型，如果不存在则返回 404 错误
+     *
+     * @param $id
+     * @return Channel|null
+     * @throws NotFoundHttpException
      */
     protected function findModel($id)
     {

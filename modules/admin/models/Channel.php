@@ -5,6 +5,7 @@ namespace yiiplus\appversion\modules\admin\models;
 use Yii;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
 use yiiplus\appversion\modules\admin\models\Version;
+use common\models\system\AdminUser;
 
 /**
  * This is the model class for table "yp_appversion_channel".
@@ -36,6 +37,7 @@ class Channel extends ActiveRecord
     public function rules()
     {
         return [
+            [['platform', 'name', 'code'],'required'],
             [['platform', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name', 'code'], 'string', 'max' => 64],
         ];
@@ -85,5 +87,20 @@ class Channel extends ActiveRecord
     {
         $channels = self::find()->select(['id', 'name'])->where(['platform' => $platform])->asArray()->all();
         return array_combine(array_column($channels,'id'), array_column($channels,'name'));
+    }
+
+    public function beforeSave($insert){
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->status = 0;
+                $this->operated_id = Yii::$app->user->id;
+
+            } else {
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -48,6 +48,12 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         ['class' => 'yii\grid\SerialColumn'],
                         // 'id',
                         'app_id',
+                        [
+                            'attribute'=>'app_name',
+                            'value' => function ($model) {
+                                return $model->app->name ?? null;
+                            }
+                        ],
                         'code',
                         'min_code',
                         'name',
@@ -62,7 +68,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         //'created_at',
                         //'updated_at',
                         //'deleted_at',
-
                         ['class' => 'yii\grid\ActionColumn'],
                     ],
                     'layout'=>"{items}<div class='col-sm-11'>{summary}<div class='pull-right'>{pager}</div></div>",
