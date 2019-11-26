@@ -73,6 +73,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             'template' => '{channel/index} {update} {delete}',
                             'buttons' => [
                                 'channel/index' => function ($url, $model, $key) {
+                                    $url = "/appversion/channel-version?version_id=$model->id";
                                     return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
                                 },
                                 'update' => function ($url, $model, $key) {

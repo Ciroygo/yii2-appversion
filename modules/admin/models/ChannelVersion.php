@@ -45,7 +45,7 @@ class ChannelVersion extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'version_id' => 'Version ID',
+            'version_id' => '版本',
             'channel_id' => '渠道',
             'url' => '链接地址',
             'operated_id' => 'Operated ID',
@@ -57,12 +57,31 @@ class ChannelVersion extends ActiveRecord
     }
 
     /**
-     * 管理员关联
+     * 渠道关联
      *
      * @return \yii\db\ActiveQuery
      */
     public function getChannel()
     {
         return $this->hasOne(Channel::className(), ['id' => 'channel_id']);
+    }
+
+    /**
+     * 版本关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getVersion()
+    {
+        return $this->hasOne(Channel::className(), ['id' => 'version_id']);
+    }
+
+    public function beforeSave($insert){
+        if (parent::beforeSave($insert)) {
+            $this->operated_id = Yii::$app->user->id;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

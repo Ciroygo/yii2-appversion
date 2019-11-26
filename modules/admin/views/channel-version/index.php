@@ -1,26 +1,14 @@
 <?php
-/**
- * 萌股 - 二次元潮流聚集地
- *
- * PHP version 7
- *
- * @category  PHP
- * @package   Yii2
- * @author    陈思辰 <chensichen@mocaapp.cn>
- * @copyright 2019 重庆次元能力科技有限公司
- * @license   https://www.moego.com/licence.txt Licence
- * @link      http://www.moego.com
- */
 
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\bootstrap\Alert;
 
 /* @var $this yii\web\View */
-/* @var $searchModel yiiplus\appversion\modules\admin\models\AppSearch */
+/* @var $searchModel yiiplus\appversion\modules\admin\models\ChannelVersionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Apps 管理';
+$this->title = '版本渠道管理';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -61,30 +49,17 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
                             'id',
-                            'name',
-                            [
-                                'attribute'=>'operator',
-                                'value' => function ($model) {
-                                    return $model->operator->username ?? null;
-                                }
-                            ],
-                            [
-                                'attribute'=>'created_at',
-                                'value' => function ($model) {
-                                    return date("Y-m-d H:i:s", $model->created_at);
-                                }
-                            ],
+                            'version_id',
+                            'channel_id',
+                            'url:url',
+                            'operated_id',
                             [
                                 'class' => 'yii\grid\ActionColumn',
-                                'template' => '{version-apple} {version-android} {update} {delete}',
+                                'template' => '{update} {delete}',
                                 'buttons' => [
-                                    'version-apple' => function ($url, $model, $key) {
-                                        $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=1";
-                                        return Html::a('<span class="fa fa-apple"></span>', $url, ['title' => '苹果版本管理']);
-                                    },
-                                    'version-android' => function ($url, $model, $key) {
-                                        $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
-                                        return Html::a('<span class="fa fa-android"></span>', $url, ['title' => '安卓版本管理']);
+                                    'update' => function ($url, $model, $key) {
+                                        $url .= "&version_id=" . Yii::$app->request->getQueryParam('version_id');
+                                        return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                 ],
                                 'header' => '操作',
