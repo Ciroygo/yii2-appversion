@@ -68,7 +68,23 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         //'created_at',
                         //'updated_at',
                         //'deleted_at',
-                        ['class' => 'yii\grid\ActionColumn'],
+                        [
+                            'class' => 'yii\grid\ActionColumn',
+                            'template' => '{channel/index} {update} {delete}',
+                            'buttons' => [
+                                'channel/index' => function ($url, $model, $key) {
+                                    return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
+                                },
+                                'update' => function ($url, $model, $key) {
+                                    return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                },
+                                'delete' => function ($url, $model, $key) {
+                                    $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
+                                    return Html::a('删除', $url, ['class' => 'btn btn-xs btn-danger']);
+                                },
+                            ],
+                            'header' => '操作',
+                        ],
                     ],
                     'layout'=>"{items}<div class='col-sm-11'>{summary}<div class='pull-right'>{pager}</div></div>",
                     'tableOptions' => ['class' => 'table table-hover']

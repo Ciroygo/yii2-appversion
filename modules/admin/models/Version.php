@@ -55,6 +55,7 @@ class Version extends ActiveRecord
     public function rules()
     {
         return [
+            [['app_id', 'code', 'min_code', 'name', 'min_name', 'type', 'scope'],'required'],
             [['app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['desc'], 'string'],
             [['name', 'min_name'], 'string', 'max' => 64],
@@ -122,5 +123,20 @@ class Version extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
+    }
+
+    public function beforeSave($insert){
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->status = 1;
+                $this->operated_id = Yii::$app->user->id;
+
+            } else {
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

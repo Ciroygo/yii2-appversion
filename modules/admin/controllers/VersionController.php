@@ -76,20 +76,13 @@ class VersionController extends Controller
     public function actionCreate()
     {
         $model = new Version();
-        $channelVersion = new ChannelVersion();
 
-        if ($model->load(Yii::$app->request->post(), null) && $channelVersion->load(Yii::$app->request->post(), null)) {
-            $model->operated_id = Yii::$app->user->id ?? 0;
-            $channelVersion->operated_id = Yii::$app->user->id ?? 0;
-
-            $model->save();
-            $model->link('channelVersions', $channelVersion);
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect('index');
         }
 
         return $this->render('create', [
             'model' => $model,
-            'channelVersion' => $channelVersion
         ]);
     }
 
@@ -104,20 +97,12 @@ class VersionController extends Controller
     {
         $model = $this->findModel($id);
 
-        $channelVersions = $model->channelVersions;
-//var_dump(Yii::$app->request->post());die();
-        if ($model->load(Yii::$app->request->post(), null) && $channelVersions[0]->load(Yii::$app->request->post(), null)) {
-            $model->operated_id = Yii::$app->user->id ?? 0;
-            $channelVersions[0]->operated_id = Yii::$app->user->id ?? 0;
-
-            $model->save();
-            $model->link('channelVersions', $channelVersions[0]);
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            return $this->redirect('index');
         }
 
         return $this->render('update', [
             'model' => $model,
-            'channelVersions' => $channelVersions
         ]);
     }
 

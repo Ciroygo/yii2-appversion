@@ -23,7 +23,7 @@ class m191120_102949_create_yp_appversion_version_table extends Migration
             'platform' => "tinyint(1) NOT NULL DEFAULT '0' COMMENT '平台 1 iOS 2 安卓 '",
             'scope' => "tinyint(1) NOT NULL DEFAULT '0' COMMENT '发布范围（1 全量、2 白名单、3 ip发布）'",
             'desc' => "text COMMENT '版本描述 最长字符'",
-            'status' => "tinyint(1) NOT NULL DEFAULT '0' COMMENT '发布范围（1 全量、2 白名单、3 ip发布）'",
+            'status' => "tinyint(1) NOT NULL DEFAULT '0' COMMENT '上架状态 1 上架 2 下架'",
             'operated_id' => "int(11) COMMENT '用户id'",
             'is_del' => "tinyint(1) DEFAULT '0' COMMENT '状态；0正常；1主动删除；2后台删除'",
             'created_at' => "int(11) DEFAULT NULL COMMENT '创建时间'",
