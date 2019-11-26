@@ -16,6 +16,12 @@ admin/config/main.php
         'appversion' => [
             'class' => 'yiiplus\appversion\modules\admin\Module',
         ],
+
+app/config/main.php
+
+        'api1' => [
+            'class' => 'yiiplus\appversion\modules\api\Module',
+        ],
 ```
 
 ````$xslt
