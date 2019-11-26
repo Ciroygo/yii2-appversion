@@ -58,7 +58,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
                             'name',
-                            'application_id',
                             [
                                 'attribute'=>'operator',
                                 'value' => function ($model) {
@@ -73,6 +72,17 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             ],
                             [
                                 'class' => 'yii\grid\ActionColumn',
+                                'template' => '{version-apple} {version-android} {update} {delete}',
+                                'buttons' => [
+                                    'version-apple' => function ($url, $model, $key) {
+                                        $url = "/appversion/version";
+                                        return Html::a('<span class="fa fa-apple"></span>', $url, ['title' => '苹果版本管理']);
+                                    },
+                                    'version-android' => function ($url, $model, $key) {
+                                        $url = "/appversion/version";
+                                        return Html::a('<span class="fa fa-android"></span>', $url, ['title' => '安卓版本管理']);
+                                    },
+                                ],
                                 'header' => '操作',
                             ],
                         ],

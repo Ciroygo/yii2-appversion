@@ -48,9 +48,9 @@ class Channel extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => 'Name',
-            'platform' => 'Platform',
-            'code' => 'Code',
+            'name' => '渠道名',
+            'platform' => '平台',
+            'code' => '渠道码',
             'status' => 'Status',
             'operated_id' => 'Operated ID',
             'is_del' => 'Is Del',

@@ -40,14 +40,14 @@ use yiiplus\appversion\modules\admin\models\Channel;
 
     <?php foreach ($channelVersions as $key => $channelVersion) { ?>
 
-        <?= $form->field($channelVersions[$key], "channel_id[]")->label('渠道 '. $channelVersion->channel->name)
+        <?= $form->field($channelVersions[$key], "[$key]channel_id")->label('渠道 '. $channelVersion->channel->name . ' <a href="">移除</a>')
             ->dropdownList(array_combine(array_column($channels,'id'), array_column($channels,'name')), ['prompt'=>'选择渠道']); ?>
-        <?= $form->field($channelVersions[$key], 'url[]')->textInput() ?>
+        <?= $form->field($channelVersions[$key], "[$key]url")->textInput() ?>
 
     <?php
         }
     ?>
-
+    <?= Html::a('添加', ['create'], ['class' => 'btn btn-success']) ?>
 
 
     <?= $form->field($model, 'scope')->dropdownList(Version::SCOPE_TYPE) ?>
