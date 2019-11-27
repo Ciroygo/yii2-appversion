@@ -45,14 +45,34 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                 <div class="col-sm-12">
                     <?= GridView::widget([
                         'dataProvider' => $dataProvider,
-                        'filterModel' => $searchModel,
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
                             'id',
-                            'version_id',
-                            'channel_id',
+                            [
+                                'attribute'=>'app',
+                                'value' => function ($model) {
+                                    return $model->version->app->name ?? null;
+                                }
+                            ],
+                            [
+                                'attribute'=>'version_id',
+                                'value' => function ($model) {
+                                    return $model->version->name ?? null;
+                                }
+                            ],
+                            [
+                                'attribute'=>'channel_id',
+                                'value' => function ($model) {
+                                    return \yiiplus\appversion\modules\admin\models\Channel::findOne($model->channel_id)->name ?? null;
+                                }
+                            ],
                             'url:url',
-                            'operated_id',
+                            [
+                                'attribute'=>'operated_id',
+                                'value' => function ($model) {
+                                    return $model->operator->username ?? null;
+                                }
+                            ],
                             [
                                 'class' => 'yii\grid\ActionColumn',
                                 'template' => '{update} {delete}',
@@ -60,6 +80,13 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                     'update' => function ($url, $model, $key) {
                                         $url .= "&version_id=" . Yii::$app->request->getQueryParam('version_id');
                                         return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                    },
+                                    'delete' => function ($url, $model, $key) {
+                                        return Html::a('删除', $url,
+                                            ['class' => 'btn btn-xs btn-danger',
+                                                'data-pjax'=>"0",
+                                                'data-confirm'=>"您确定要删除此项吗？",
+                                                'data-method'=>"post"]);
                                     },
                                 ],
                                 'header' => '操作',

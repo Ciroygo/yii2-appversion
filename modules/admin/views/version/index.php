@@ -69,16 +69,37 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         'min_code',
                         'name',
                         'min_name',
-                        'type',
-                        'platform',
-                        'scope',
+                        [
+                            'attribute'=>'type',
+                            'value' => function ($model) {
+                                return \yiiplus\appversion\modules\admin\models\Version::SCOPE_TYPE[$model->type] ?? null;
+                            }
+                        ],
+                        [
+                            'attribute'=>'platform',
+                            'value' => function ($model) {
+                                return \yiiplus\appversion\modules\admin\models\App::PLATFORM_OPTIONS[$model->platform] ?? null;
+                            }
+                        ],
+                        [
+                            'attribute'=>'scope',
+                            'value' => function ($model) {
+                                return \yiiplus\appversion\modules\admin\models\Version::SCOPE_TYPE[$model->scope] ?? null;
+                            }
+                        ],
                         'desc:text',
-                        //'status',
-                        'operated_id',
-                        //'is_del',
-                        //'created_at',
-                        //'updated_at',
-                        //'deleted_at',
+                        [
+                            'attribute'=>'status',
+                            'value' => function ($model) {
+                                return \yiiplus\appversion\modules\admin\models\Version::STATUS_TYPE[$model->status] . "中" ?? null;
+                            }
+                        ],
+                        [
+                            'attribute'=>'operated_id',
+                            'value' => function ($model) {
+                                return $model->operator->username ?? null;
+                            }
+                        ],
                         [
                             'class' => 'yii\grid\ActionColumn',
                             'template' => '{status-toggle} {channel/index} {update} {delete}',

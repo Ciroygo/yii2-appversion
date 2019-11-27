@@ -83,9 +83,16 @@ class Channel extends ActiveRecord
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 
-    public static function getChannelOptions($platform)
+    public static function getChannelOptions($platform, $version = false)
     {
-        $channels = self::find()->select(['id', 'name'])->where(['platform' => $platform])->asArray()->all();
+        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform]);
+        if ($version) {
+           $exists_channels =  $version->getChannels()->select(['id'])->column();
+           if (!empty($exists_channels)) {
+               $query->andWhere(['not in', 'id', $exists_channels]);
+           }
+        }
+        $channels = $query->asArray()->all();
         return array_combine(array_column($channels,'id'), array_column($channels,'name'));
     }
 

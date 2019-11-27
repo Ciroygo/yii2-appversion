@@ -2,6 +2,7 @@
 
 namespace yiiplus\appversion\modules\admin\models;
 
+use common\models\system\AdminUser;
 use Yii;
 
 /**
@@ -51,7 +52,8 @@ class ChannelVersion extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id' => '主键',
+            'app' => '应用',
             'version_id' => '版本',
             'channel_id' => '渠道',
             'url' => '链接地址',
@@ -142,5 +144,15 @@ class ChannelVersion extends ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 }

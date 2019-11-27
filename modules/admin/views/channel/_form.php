@@ -15,7 +15,7 @@ use yiiplus\appversion\modules\admin\models\App;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
+    <?= $form->field($model, 'platform')->dropdownList([App::ANDROID => App::PLATFORM_OPTIONS[App::ANDROID]]) ?>
 
     <?= $form->field($model, 'code')->textInput(['maxlength' => true]) ?>
 

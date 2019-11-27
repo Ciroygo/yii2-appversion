@@ -20,7 +20,8 @@ use yii\widgets\Pjax;
     <?php
         $apps = App::find()->select(['id', 'name'])->asArray()->all();
     ?>
-    <?= $form->field($model, 'app_id')->dropdownList(array_combine(array_column($apps,'id'), array_column($apps,'name')), ['prompt'=>'选择应用']); ?>
+    <?= $form->field($model, 'app_id')
+        ->dropdownList(App::getAppOptions(), ['prompt'=>'选择应用', "disabled" => 'disabled']); ?>
 
     <?= $form->field($model, 'code')->textInput() ?>
 
@@ -32,7 +33,7 @@ use yii\widgets\Pjax;
 
     <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
 
-    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
+    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台', "disabled" => 'disabled']) ?>
 
     <?php
         $channels = Channel::find()->select(['id', 'name'])->where(['platform' => $model->platform])->asArray()->all();

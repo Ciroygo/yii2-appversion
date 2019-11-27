@@ -15,16 +15,26 @@ use kartik\file\FileInput;
 
     <?= $form->field($version->app, 'name')->textInput(["disabled" => 'disabled']) ?>
 
-    <?= $form->field($model, 'version_id')->textInput(["disabled" => 'disabled']) ?>
+    <?= $form->field($model->version, 'code')->textInput(["disabled" => 'disabled']) ?>
 
-    <?= $form->field($model->version, 'platform')->textInput(["disabled" => 'disabled']) ?>
+    <?= $form->field($model->version, 'name')->textInput(["disabled" => 'disabled']) ?>
 
-    <?= $form->field($model, 'channel_id')->dropdownList(\yiiplus\appversion\modules\admin\models\Channel::getChannelOptions($version->platform)); ?>
+    <?= $form->field($model->version, 'platform')->dropDownList(\yiiplus\appversion\modules\admin\models\App::PLATFORM_OPTIONS, ["disabled" => 'disabled']) ?>
+
+    <?php
+        if ($model->channel_id) {
+            $getOptions = false;
+        } else {
+            $getOptions = $version;
+        }
+        ?>
+    <?= $form->field($model, 'channel_id')->dropdownList(\yiiplus\appversion\modules\admin\models\Channel::getChannelOptions($version->platform, $getOptions ?? false)); ?>
 
     <?php
         if ($version->platform == \yiiplus\appversion\modules\admin\models\App::IOS) {
             echo $form->field($model, 'url')->textInput(['maxlength' => true]);
         } else {
+
             echo $form->field($model, 'url')->widget(FileInput::classname());
         }
     ?>

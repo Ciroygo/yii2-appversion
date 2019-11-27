@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\ChannelVersion */
 
-$this->title = 'Update Channel Version: ' . $model->id;
+$this->title = '渠道关联:' . $model->id;
 $this->params['breadcrumbs'][] = ['label' => 'Channel Versions', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';
