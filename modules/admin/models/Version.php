@@ -55,9 +55,10 @@ class Version extends ActiveRecord
     public function rules()
     {
         return [
-            [['app_id', 'code', 'min_code', 'name', 'min_name', 'type', 'scope'],'required'],
+            [['app_id', 'code', 'min_code', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
             [['app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['desc'], 'string'],
+            [['name', 'min_name'], 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 1.1.1'],
             [['name', 'min_name'], 'string', 'max' => 64],
         ];
     }

@@ -19,9 +19,20 @@ admin/config/main.php
 
 app/config/main.php
 
-        'api1' => [
-            'class' => 'yiiplus\appversion\modules\api\Module',
+        'version' => [
+            'class' => 'yiiplus\appversion\modules\version\Module',
         ],
+
+
+ 在urlManager 数组中添加
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => [
+                        'version',
+                    ],
+                    'pluralize' => false,
+                ],
+
 ```
 
 ````$xslt

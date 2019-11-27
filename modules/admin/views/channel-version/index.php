@@ -32,7 +32,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
 
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
             <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+                ['create', 'version_id' => Yii::$app->request->getQueryParam('version_id')], ['class' => 'btn btn-sm btn-success']) ?>
         </div>
     </div>
 

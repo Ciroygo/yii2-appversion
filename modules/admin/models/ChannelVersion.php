@@ -19,6 +19,12 @@ use Yii;
  */
 class ChannelVersion extends ActiveRecord
 {
+    public $code;
+    public $name;
+    public $app_id;
+    public $platform;
+    public $channel;
+
     /**
      * {@inheritdoc}
      */
@@ -33,6 +39,7 @@ class ChannelVersion extends ActiveRecord
     public function rules()
     {
         return [
+            [['version_id', 'channel_id', 'url'], 'required'],
             [['version_id', 'channel_id', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['url'], 'string', 'max' => 255],
         ];
@@ -73,7 +80,60 @@ class ChannelVersion extends ActiveRecord
      */
     public function getVersion()
     {
-        return $this->hasOne(Channel::className(), ['id' => 'version_id']);
+        return $this->hasOne(Version::className(), ['id' => 'version_id']);
+    }
+
+    public function latest($model)
+    {
+        $app = App::findOne($model->app_id);
+        if (!$app) {
+            // 默认给客户端一个不报错的默认更新信息
+            return $this->transformers();
+        }
+
+        // 取得应用的所有版本 id，根据 where in 与 channel_id 查询所属渠道最新版本数据
+        $versions_arr = $app->getVersions()->select(['id'])->where(['app_id' => $model->app_id])->asArray()->all();
+        $versionIds = array_column($versions_arr,'id');
+        if (empty($versionIds)) {
+            return $this->transformers();
+        }
+
+        $channelVersions = ChannelVersion::find()
+            ->joinWith('version')
+            ->where(['channel_id' => $model->channel])
+            ->where([Version::tableName() . '.platform' => $model->platform])
+            ->andWhere(['in', 'version_id', $versionIds])
+            ->orderBy([Version::tableName() . '.code' => SORT_DESC])
+            ->all();
+
+        if (empty($channelVersions)) {
+            return $this->transformers();
+        }
+
+        foreach ($channelVersions as $channelVersion) {
+            // todo 如果当前设备版本号小于最小，则换下一个版本信息判断
+            if (($device_code = 9999999) > $channelVersion->version->min_code ?? 0) {
+                return $this->transformers($channelVersion);
+                break;
+            }
+        }
+
+        return $this->transformers();
+    }
+
+    public function transformers($data = false)
+    {
+        $version_info = [
+            'code' => $data->version->code ?? 0,
+            'min_code' => $data->version->min_code ?? 0,
+            'name' => $data->version->name ?? "0.0.0",
+            'min_name' => $data->version->min_name ?? "0.0.0",
+            'type' => $data->version->type ?? 1,
+            'scope' => $data->version->scope ?? 1,
+            'desc' => $data->version->desc ?? '',
+            'url' => $data->url ?? ''
+        ];
+        return $version_info;
     }
 
     public function beforeSave($insert){

@@ -68,14 +68,19 @@ class VersionController extends Controller
         ]);
     }
 
+
     /**
      * 创建版本
      *
+     * @param $app_id
+     * @param $platform
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+    public function actionCreate($app_id, $platform)
     {
         $model = new Version();
+        $model->app_id = $app_id;
+        $model->platform = $platform;
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect('index');

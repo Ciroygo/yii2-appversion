@@ -31,7 +31,8 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
         <?php Pjax::begin(); ?>
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
             <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+                ['create', 'app_id' => $searchModel->app_id,
+                    'platform' => $searchModel->platform], ['class' => 'btn btn-sm btn-success']) ?>
         </div>
     </div>
     <div class="box-body">

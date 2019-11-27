@@ -44,7 +44,7 @@ class App extends ActiveRecord
     {
         return [
             [['name', 'application_id'], 'required'],
-            [['is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['is_del', 'created_at', 'updated_at', 'deleted_at', 'operated_id'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['application_id'], 'string', 'max' => 255],
             ['application_id', 'match', 'pattern'=>'/^[a-zA-Z][a-zA-Z0-9_.]{4,29}$/', 'message'=>'5-30位字母、数字或“_”“.”, 字母开头']
