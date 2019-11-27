@@ -29,42 +29,42 @@ use yii\behaviors\TimestampBehavior;
 class ActiveRecord extends \yii\db\ActiveRecord
 {
     /**
-     * NOT_DELETED是删除状态，它表示这条数据未被删除
+     * NOT_DELETED 是删除状态，它表示这条数据未被删除
      */
     const NOT_DELETED = 0;
 
     /**
-     * ACTIVE_DELETE是删除状态，它表示这条数据被主动删除
+     * ACTIVE_DELETE 是删除状态，它表示这条数据被主动删除
      */
     const ACTIVE_DELETE = 1;
 
     /**
-     * BACKGROUND_DELETE是删除状态，它表示这台数据被后台删除
+     * BACKGROUND_DELETE 是删除状态，它表示这台数据被后台删除
      */
     const BACKGROUND_DELETE = 2;
 
     /**
-     * FONT_END_PAGESIZE是前端常用每页数目
+     * FONT_END_PAGESIZE 是前端常用每页数目
      */
     const FONT_END_PAGESIZE = 21;
 
     /**
-     * PAGENUM是页数
+     * PAGENUM 是页数
      */
     const PAGE_NUM = 0;
 
     /**
-     * APP IOS版本
+     * APP IOS 版本
      */
     const MOEGO_IOS_VERSION = 26;
 
     /**
-     * APP IOS版本
+     * APP 安卓版本
      */
     const MOEGO_ANDROID_VERSION = 21;
 
     /**
-     * Returns a list of behaviors that this component should behave as.
+     * 自动时间戳
      *
      * @return array the behavior configurations.
      */
@@ -75,29 +75,15 @@ class ActiveRecord extends \yii\db\ActiveRecord
         ];
     }
 
-    /**
-     * Populates the model with input data.
-     *
-     * @param array $data the data array to load, typically `$_POST` or `$_GET`.
-     * @param string $formName the form name to use to load the data into the model.
-     * If not set, [[formName()]] is used.
-     *
-     * @return bool whether `load()` found the expected form in `$data`.
-     */
-    public function load($data, $formName = '')
-    {
-        return parent::load($data, $formName);
-    }
 
     /**
-     * 验证模型类是否存在
+     * 验证模型类是否存在的 helper 方法
      *
-     * @param array  $params     参数
-     * @param bool   $exception  是否抛出异常
-     * @param string $errorModel 错误类
-     * @param string $error      错误信息
-     *
-     * @return static
+     * @param $params
+     * @param bool $exception
+     * @param string $errorModel
+     * @param string $error
+     * @return array|\yii\db\ActiveRecord|null
      */
     public static function validateModel($params, $exception = false, $errorModel = \Exception::class, $error = '参数错误')
     {
