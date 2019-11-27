@@ -134,7 +134,6 @@ class Version extends ActiveRecord
     public function beforeSave($insert){
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-//                $this->status = 1;
                 $this->operated_id = Yii::$app->user->id;
 
             } else {

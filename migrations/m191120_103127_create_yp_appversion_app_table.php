@@ -22,7 +22,7 @@ class m191120_103127_create_yp_appversion_app_table extends Migration
             'updated_at' => "int(11) DEFAULT NULL COMMENT '更新时间'",
             "deleted_at" => "int(11) DEFAULT NULL COMMENT '删除时间'",
             "PRIMARY KEY(`id`)"
-        ], "ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '反作弊用户表'");
+        ], "ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '应用表'");
 
         $this->createIndex('index_operated_id', '{{%yp_appversion_app}}', 'operated_id', false);
     }

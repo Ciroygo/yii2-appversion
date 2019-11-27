@@ -23,7 +23,7 @@ class m191120_103111_create_yp_appversion_channel_version_table extends Migratio
             'updated_at' => "int(11) DEFAULT NULL COMMENT '更新时间'",
             "deleted_at" => "int(11) DEFAULT NULL COMMENT '删除时间'",
             "PRIMARY KEY(`id`)"
-        ]);
+        ], "ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='版本渠道关联信息表'");
     }
 
     /**

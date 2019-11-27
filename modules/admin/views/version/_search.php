@@ -22,13 +22,13 @@ use yiiplus\appversion\modules\admin\models\Version;
             <?= $form->field($model, 'app_id')->dropDownList(App::getAppOptions()) ?>
         </div>
         <div class="col-sm-3">
-            <?= $form->field($model, 'platform')->dropDownList(App::PLATFORM_OPTIONS) ?>
+            <?= $form->field($model, 'platform')->dropDownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
         </div>
         <div class="col-sm-3">
-            <?= $form->field($model, 'status')->dropDownList(Version::STATUS_TYPE) ?>
+            <?= $form->field($model, 'status')->dropDownList(Version::STATUS_TYPE, ['prompt'=>'选择上架状态']) ?>
         </div>
         <div class="col-sm-3">
-            <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE) ?>
+            <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
         </div>
         <div class="col-sm-3">
             <?= $form->field($model, 'code') ?>

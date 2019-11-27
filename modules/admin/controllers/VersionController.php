@@ -87,7 +87,7 @@ class VersionController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
-            return $this->redirect('index');
+            return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('create', [
