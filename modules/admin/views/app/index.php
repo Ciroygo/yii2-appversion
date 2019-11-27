@@ -93,11 +93,21 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'buttons' => [
                                     'version-apple' => function ($url, $model, $key) {
                                         $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=1";
-                                        return Html::a('<span class="fa fa-apple"></span>', $url, ['title' => '苹果版本管理']);
+                                        return Html::a('<span class="fa fa-apple"></span> 苹果', $url, ['class' => 'btn btn-xs btn-success', 'title' => '苹果版本管理']);
                                     },
                                     'version-android' => function ($url, $model, $key) {
                                         $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
-                                        return Html::a('<span class="fa fa-android"></span>', $url, ['title' => '安卓版本管理']);
+                                        return Html::a('<span class="fa fa-android"></span> 安卓', $url, ['class' => 'btn btn-xs btn-success', 'title' => '安卓版本管理']);
+                                    },
+                                    'update' => function ($url, $model, $key) {
+                                        return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                    },
+                                    'delete' => function ($url, $model, $key) {
+                                        return Html::a('删除', $url,
+                                            ['class' => 'btn btn-xs btn-danger',
+                                                'data-pjax'=>"0",
+                                                'data-confirm'=>"您确定要删除此项吗？",
+                                                'data-method'=>"post"]);
                                     },
                                 ],
                                 'header' => '操作',

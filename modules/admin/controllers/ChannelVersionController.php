@@ -4,6 +4,7 @@ namespace yiiplus\appversion\modules\admin\controllers;
 
 use common\extensions\uploadFile\UploadFile;
 use yii\web\UploadedFile;
+use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\Version;
 use Yii;
@@ -133,9 +134,12 @@ class ChannelVersionController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        if ($model = $this->findModel($id)) {
+            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->save();
+        }
 
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**

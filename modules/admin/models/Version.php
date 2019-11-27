@@ -109,7 +109,7 @@ class Version extends ActiveRecord
      */
     public function getChannelVersions()
     {
-        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id']);
+        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id'])->where(['is_del' => self::NOT_DELETED]);
     }
 
     /**
@@ -137,6 +137,9 @@ class Version extends ActiveRecord
                 $this->operated_id = Yii::$app->user->id;
                 $this->status = 1;
             } else {
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['version_id' => $this->id]);
+                }
                 $this->operated_id = Yii::$app->user->id;
             }
             return true;

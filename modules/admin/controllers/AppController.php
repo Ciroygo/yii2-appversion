@@ -15,6 +15,7 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\AppSearch;
 use yii\web\Controller;
@@ -74,7 +75,7 @@ class AppController extends Controller
     public function actionCreate()
     {
         $model = new App();
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) &&$model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect(['index']);
         }
 
@@ -95,7 +96,7 @@ class AppController extends Controller
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post(), null) && ($model->operated_id = Yii::$app->user->id ?? 0) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect(['index']);
         }
 
@@ -115,14 +116,12 @@ class AppController extends Controller
      */
     public function actionDelete($id)
     {
-        $app = $this->findModel($id);
+        if ($model = $this->findModel($id)) {
+            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->save();
+        }
 
-        $this->findModel($id)->delete();
-        // todo 删除版本信息、渠道关联
-//        $app->unlinkAll('versions', true);
-//        $app->unlinkAll('versions', true);
-
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**

@@ -76,6 +76,8 @@ class AppSearch extends App
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'application_id', $this->application_id]);
 
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
+
         return $dataProvider;
     }
 }

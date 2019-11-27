@@ -100,6 +100,12 @@ class ChannelVersion extends ActiveRecord
             return $this->transformers();
         }
 
+        // 检查渠道是否存在或弃用
+        $channel = Channel::findOne($model->channel);
+        if (empty($channel) && ($channel->status == 0)) {
+            return $this->transformers();
+        }
+
         $channelVersions = ChannelVersion::find()
             ->joinWith('version')
             ->where(['channel_id' => $model->channel])

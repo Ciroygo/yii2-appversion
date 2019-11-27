@@ -77,6 +77,8 @@ class VersionSearch extends Version
             ->andFilterWhere(['like', 'min_name', $this->min_name])
             ->andFilterWhere(['like', 'desc', $this->desc]);
 
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
+
         return $dataProvider;
     }
 }

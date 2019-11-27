@@ -85,7 +85,7 @@ class Channel extends ActiveRecord
 
     public static function getChannelOptions($platform, $version = false)
     {
-        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform]);
+        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform])->andWhere(['status' => 2])->andWhere(['is_del' => self::NOT_DELETED]);
         if ($version) {
            $exists_channels =  $version->getChannels()->select(['id'])->column();
            if (!empty($exists_channels)) {
@@ -103,6 +103,24 @@ class Channel extends ActiveRecord
                 $this->operated_id = Yii::$app->user->id;
 
             } else {
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function afterSave($insert, $changedAttributes){
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->status = 0;
+                $this->operated_id = Yii::$app->user->id;
+
+            } else {
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['channel_id' => $this->id]);
+                }
                 $this->operated_id = Yii::$app->user->id;
             }
             return true;

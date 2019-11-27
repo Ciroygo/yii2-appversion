@@ -71,7 +71,7 @@ class App extends ActiveRecord
 
     public static function getAppOptions()
     {
-        $channels = self::find()->select(['id', 'name'])->asArray()->all();
+        $channels = self::find()->select(['id', 'name'])->where(['is_del' => self::NOT_DELETED])->asArray()->all();
         return array_combine(array_column($channels,'id'), array_column($channels,'name'));
     }
 
@@ -91,5 +91,23 @@ class App extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
+    }
+
+    public function beforeSave($insert){
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->operated_id = Yii::$app->user->id;
+            } else {
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    $version_ids = $this->getVersions()->select(['id'])->column();
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['in', 'version_id', $version_ids]);
+                    Version::updateAll(['is_del' => self::ACTIVE_DELETE], ['app_id' => $this->id]);
+                }
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

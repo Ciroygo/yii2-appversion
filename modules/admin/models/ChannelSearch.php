@@ -71,6 +71,8 @@ class ChannelSearch extends Channel
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'code', $this->code]);
 
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
+
         return $dataProvider;
     }
 }

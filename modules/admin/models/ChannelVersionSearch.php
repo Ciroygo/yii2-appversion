@@ -70,6 +70,8 @@ class ChannelVersionSearch extends ChannelVersion
 
         $query->andFilterWhere(['like', 'url', $this->url]);
 
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
+
         return $dataProvider;
     }
 }

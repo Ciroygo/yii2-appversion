@@ -74,8 +74,11 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
 
                                     },
                                     'delete' => function ($url, $model, $key) {
-                                        $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
-                                        return Html::a('删除', $url, ['class' => 'btn btn-xs btn-danger']);
+                                        return Html::a('删除', $url,
+                                            ['class' => 'btn btn-xs btn-danger',
+                                                'data-pjax'=>"0",
+                                                'data-confirm'=>"您确定要删除此项吗？",
+                                                'data-method'=>"post"]);
                                     },
                                 ],
                                 'header' => '操作',
