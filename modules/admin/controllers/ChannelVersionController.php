@@ -63,7 +63,7 @@ class ChannelVersionController extends Controller
         }
         $model = new ChannelVersion();
         $model->version_id = $version->id;
-        if ($model->load(Yii::$app->request->post(), null)) {
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
 
             if ($model->version->platform == App::ANDROID) {
 
@@ -78,7 +78,6 @@ class ChannelVersionController extends Controller
 
                 $model->url = $path;
             }
-            $model->save();
             return $this->redirect(['index',  'version_id' => $version->id]);
         }
 
