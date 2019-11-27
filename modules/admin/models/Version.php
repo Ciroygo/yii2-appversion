@@ -38,7 +38,12 @@ class Version extends ActiveRecord
 
     const SCOPE_TYPE = [
         1 => '全量更新',
-        2 => '一般更新'
+        2 => '白名单'
+    ];
+
+    const STATUS_TYPE = [
+        1 => '上架',
+        2 => '下架'
     ];
 
     /**
@@ -129,7 +134,7 @@ class Version extends ActiveRecord
     public function beforeSave($insert){
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-                $this->status = 1;
+//                $this->status = 1;
                 $this->operated_id = Yii::$app->user->id;
 
             } else {

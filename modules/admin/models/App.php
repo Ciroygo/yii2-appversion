@@ -25,9 +25,9 @@ class App extends ActiveRecord
         self::IOS => 'iOS'
     ];
 
-    const ANDROID = 1;
+    const ANDROID = 2;
 
-    const IOS = 2;
+    const IOS = 1;
 
     /**
      * {@inheritdoc}
@@ -67,6 +67,12 @@ class App extends ActiveRecord
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
         ];
+    }
+
+    public static function getAppOptions()
+    {
+        $channels = self::find()->select(['id', 'name'])->asArray()->all();
+        return array_combine(array_column($channels,'id'), array_column($channels,'name'));
     }
 
     /**

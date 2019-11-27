@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use kartik\file\FileInput;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\ChannelVersion */
@@ -20,7 +21,14 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'channel_id')->dropdownList(\yiiplus\appversion\modules\admin\models\Channel::getChannelOptions($version->platform)); ?>
 
-    <?= $form->field($model, 'url')->textInput(['maxlength' => true]) ?>
+    <?php
+        if ($version->platform == \yiiplus\appversion\modules\admin\models\App::IOS) {
+            echo $form->field($model, 'url')->textInput(['maxlength' => true]);
+        } else {
+            echo $form->field($model, 'url')->widget(FileInput::classname());
+        }
+    ?>
+
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

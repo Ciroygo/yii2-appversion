@@ -39,7 +39,7 @@ class ChannelVersion extends ActiveRecord
     public function rules()
     {
         return [
-            [['version_id', 'channel_id', 'url'], 'required'],
+            [['version_id', 'channel_id'], 'required'],
             [['version_id', 'channel_id', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['url'], 'string', 'max' => 255],
         ];

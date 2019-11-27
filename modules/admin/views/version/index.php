@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use yii\bootstrap\Alert;
+
 /* @var $this yii\web\View */
 /* @var $searchModel yiiplus\appversion\modules\admin\models\VersionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -27,12 +29,21 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
 
 <div class="box">
     <div class="box-header">
-        <h3 class="box-title"><?= $this->title ?></h3>
-        <?php Pjax::begin(); ?>
-        <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
-            <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create', 'app_id' => $searchModel->app_id,
-                    'platform' => $searchModel->platform], ['class' => 'btn btn-sm btn-success']) ?>
+
+
+        <h3 class="box-title">搜索</h3>
+        <div class="margin-bottom"></div>
+        <div class="row">
+            <div class="col-xs-8">
+                <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+            </div>
+            <div class="col-xs-4">
+                <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
+                    <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
+                        ['create', 'app_id' => $searchModel->app_id,
+                            'platform' => $searchModel->platform], ['class' => 'btn btn-sm btn-success']) ?>
+                </div>
+            </div>
         </div>
     </div>
     <div class="box-body">
@@ -44,7 +55,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
             <div class="col-sm-12">
                 <?= GridView::widget([
                     'dataProvider' => $dataProvider,
-                    'filterModel' => $searchModel,
                     'columns' => [
                         ['class' => 'yii\grid\SerialColumn'],
                         // 'id',
@@ -71,8 +81,15 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         //'deleted_at',
                         [
                             'class' => 'yii\grid\ActionColumn',
-                            'template' => '{channel/index} {update} {delete}',
+                            'template' => '{status-toggle} {channel/index} {update} {delete}',
                             'buttons' => [
+                                'status-toggle' => function ($url, $model, $key) {
+                                    if ($model->status == 1) {
+                                        return Html::a('下架', $url, ['class' => 'btn btn-xs btn-success']);
+                                    } else {
+                                        return Html::a('上架', $url, ['class' => 'btn btn-xs btn-warning']);
+                                    }
+                                },
                                 'channel/index' => function ($url, $model, $key) {
                                     $url = "/appversion/channel-version?version_id=$model->id";
                                     return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
@@ -91,7 +108,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                     'layout'=>"{items}<div class='col-sm-11'>{summary}<div class='pull-right'>{pager}</div></div>",
                     'tableOptions' => ['class' => 'table table-hover']
                 ]); ?>
-                <?php Pjax::end(); ?>
             </div>
         </div>
     </div>

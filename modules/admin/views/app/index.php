@@ -40,11 +40,18 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
 
 <div class="box">
     <div class="box-header">
-        <h3 class="box-title"><?= $this->title ?></h3>
-
-        <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
-            <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+        <h3 class="box-title">搜索</h3>
+        <div class="margin-bottom"></div>
+        <div class="row">
+            <div class="col-xs-8">
+                <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+            </div>
+            <div class="col-xs-4">
+                <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
+                    <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
+                        ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -57,11 +64,16 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                 <div class="col-sm-12">
                     <?= GridView::widget([
                         'dataProvider' => $dataProvider,
-                        'filterModel' => $searchModel,
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
-                            'id',
-                            'name',
+                            [
+                                'attribute' => 'id',
+                                'filter' => false, //不显示搜索框
+                            ],
+                            [
+                                'attribute' => 'name',
+                                'filter' => false, //不显示搜索框
+                            ],
                             [
                                 'attribute'=>'operator',
                                 'value' => function ($model) {
@@ -70,6 +82,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             ],
                             [
                                 'attribute'=>'created_at',
+                                'filter' => false,
                                 'value' => function ($model) {
                                     return date("Y-m-d H:i:s", $model->created_at);
                                 }

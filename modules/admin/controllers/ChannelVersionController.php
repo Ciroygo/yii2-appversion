@@ -2,6 +2,9 @@
 
 namespace yiiplus\appversion\modules\admin\controllers;
 
+use common\extensions\uploadFile\UploadFile;
+use yii\web\UploadedFile;
+use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\Version;
 use Yii;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
@@ -60,6 +63,17 @@ class ChannelVersionController extends Controller
         $model = new ChannelVersion();
         $model->version_id = $version->id;
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+
+            if ($model->version->platform == App::ANDROID) {
+                $file = UploadedFile::getInstances($model, 'url');
+
+                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], 'version/apk');
+
+                $model->url = $path;
+
+                $model->save();
+            }
+
             return $this->redirect(['index',  'version_id' => $version->id]);
         }
 
@@ -88,6 +102,15 @@ class ChannelVersionController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            if ($model->version->platform == App::ANDROID) {
+                $file = UploadedFile::getInstances($model, 'url');
+
+                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], 'version/apk');
+
+                $model->url = $path;
+
+                $model->save();
+            }
             return $this->redirect(['index',  'version_id' => $version->id]);
         }
 

@@ -76,11 +76,15 @@ class VersionController extends Controller
      * @param $platform
      * @return string|\yii\web\Response
      */
-    public function actionCreate($app_id, $platform)
+    public function actionCreate($app_id = false, $platform = false)
     {
         $model = new Version();
-        $model->app_id = $app_id;
-        $model->platform = $platform;
+        if ($app_id) {
+            $model->app_id = $app_id;
+        }
+        if ($platform) {
+            $model->platform = $platform;
+        }
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
             return $this->redirect('index');
@@ -103,12 +107,32 @@ class VersionController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
-            return $this->redirect('index');
+            return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('update', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * 废弃与启用
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionStatusToggle($id)
+    {
+
+        $model = $this->findModel($id);
+
+        $model->status = ($model->status != 1) ? 1 : 2;
+
+        $model->save();
+
+        Yii::$app->getSession()->setFlash('success', '操作成功');
+        return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
     }
 
     /**
