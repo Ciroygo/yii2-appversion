@@ -14,6 +14,7 @@
 
 namespace yiiplus\appversion\modules\version\controllers;
 
+use app\extensions\ApiException;
 use yii\base\DynamicModel;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
@@ -38,6 +39,8 @@ class IndexController extends Controller
      * 版本接口最新信息获取
      *
      * @return array
+     * @throws ApiException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionIndex()
     {
@@ -50,6 +53,7 @@ class IndexController extends Controller
 
         if ($model->hasErrors()) {
             // 验证失败
+            throw new ApiException(ApiException::SYSTEM_PARAM_ERROR);
         }
 
         $version = (new ChannelVersion)->latest($model);

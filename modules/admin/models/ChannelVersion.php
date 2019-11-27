@@ -101,7 +101,7 @@ class ChannelVersion extends ActiveRecord
         $channelVersions = ChannelVersion::find()
             ->joinWith('version')
             ->where(['channel_id' => $model->channel])
-            ->where([Version::tableName() . '.platform' => $model->platform])
+            ->andWhere([Version::tableName() . '.platform' => $model->platform])
             ->andWhere(['in', 'version_id', $versionIds])
             ->orderBy([Version::tableName() . '.code' => SORT_DESC])
             ->all();
@@ -111,8 +111,7 @@ class ChannelVersion extends ActiveRecord
         }
 
         foreach ($channelVersions as $channelVersion) {
-            // todo 如果当前设备版本号小于最小，则换下一个版本信息判断
-            if (($device_code = 9999999) > $channelVersion->version->min_code ?? 0) {
+            if ($model->code > $channelVersion->version->min_code ?? 0) {
                 return $this->transformers($channelVersion);
                 break;
             }
