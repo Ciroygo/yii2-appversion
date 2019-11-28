@@ -75,7 +75,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'filter' => false, //不显示搜索框
                             ],
                             [
-                                'attribute'=>'operator',
+                                'attribute'=>'operated_id',
                                 'value' => function ($model) {
                                     return $model->operator->username ?? null;
                                 }

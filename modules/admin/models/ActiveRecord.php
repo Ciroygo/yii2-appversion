@@ -75,7 +75,6 @@ class ActiveRecord extends \yii\db\ActiveRecord
         ];
     }
 
-
     /**
      * 验证模型类是否存在的 helper 方法
      *

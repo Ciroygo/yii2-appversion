@@ -1,4 +1,16 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
@@ -6,7 +18,14 @@ use common\models\system\AdminUser;
 use Yii;
 
 /**
- * This is the model class for table "yp_appversion_channel_version".
+ * ChannelVersion 渠道包模型
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  *
  * @property int $id 主键id
  * @property int $version_id 版本关联id
@@ -20,14 +39,11 @@ use Yii;
  */
 class ChannelVersion extends ActiveRecord
 {
-    public $code;
-    public $name;
-    public $app_id;
-    public $platform;
-    public $channel;
 
     /**
-     * {@inheritdoc}
+     * 表名
+     *
+     * @return string
      */
     public static function tableName()
     {
@@ -35,7 +51,9 @@ class ChannelVersion extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 基本规则
+     *
+     * @return array
      */
     public function rules()
     {
@@ -47,7 +65,9 @@ class ChannelVersion extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 字段中文名
+     *
+     * @return array
      */
     public function attributeLabels()
     {
@@ -85,6 +105,12 @@ class ChannelVersion extends ActiveRecord
         return $this->hasOne(Version::className(), ['id' => 'version_id']);
     }
 
+    /**
+     * 获得最新的版本信息
+     *
+     * @param $model
+     * @return array
+     */
     public function latest($model)
     {
         $app = App::findOne($model->app_id);
@@ -128,7 +154,23 @@ class ChannelVersion extends ActiveRecord
         return $this->transformers();
     }
 
-    public function transformers($data = false)
+    /**
+     * 管理员关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
+    }
+
+    /**
+     * 接口结果转换
+     *
+     * @param array $data
+     * @return array
+     */
+    public function transformers($data = [])
     {
         $version_info = [
             'code' => $data->version->code ?? 0,
@@ -143,6 +185,12 @@ class ChannelVersion extends ActiveRecord
         return $version_info;
     }
 
+    /**
+     * 模型监控器
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert){
         if (parent::beforeSave($insert)) {
             $this->operated_id = Yii::$app->user->id;
@@ -150,15 +198,5 @@ class ChannelVersion extends ActiveRecord
         } else {
             return false;
         }
-    }
-
-    /**
-     * 管理员关联
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOperator()
-    {
-        return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 }

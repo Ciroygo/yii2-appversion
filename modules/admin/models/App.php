@@ -82,7 +82,6 @@ class App extends ActiveRecord
         ];
     }
 
-
     /**
      * 字段中文名
      *

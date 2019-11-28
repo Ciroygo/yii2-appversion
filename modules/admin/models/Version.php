@@ -1,15 +1,31 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
 use common\models\system\AdminUser;
 use Yii;
-use yiiplus\appversion\modules\admin\models\App;
-use yiiplus\appversion\modules\admin\models\Channel;
-use yiiplus\appversion\modules\admin\models\ChannelVersion;
 
 /**
- * This is the model class for table "yp_appversion_version".
+ * Version 版本模型
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  *
  * @property int $id 主键id
  * @property int $app_id 应用关联id
@@ -30,24 +46,35 @@ use yiiplus\appversion\modules\admin\models\ChannelVersion;
  */
 class Version extends ActiveRecord
 {
+    /**
+     * 更新类型
+     */
     const UPDATE_TYPE = [
         1 => '一般更新',
         2 => '强制更新',
         3 => '静默更新',
     ];
 
+    /**
+     * 更新范围
+     */
     const SCOPE_TYPE = [
         1 => '全量更新',
         2 => '白名单'
     ];
 
+    /**
+     * 上下架状态
+     */
     const STATUS_TYPE = [
         1 => '上架',
         2 => '下架'
     ];
 
     /**
-     * {@inheritdoc}
+     * 表名
+     *
+     * @return string
      */
     public static function tableName()
     {
@@ -55,7 +82,9 @@ class Version extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 基本规则
+     *
+     * @return array
      */
     public function rules()
     {
@@ -69,7 +98,9 @@ class Version extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 字段中文名
+     *
+     * @return array
      */
     public function attributeLabels()
     {
@@ -131,12 +162,19 @@ class Version extends ActiveRecord
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 
+    /**
+     * 模型监控器
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert){
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->operated_id = Yii::$app->user->id;
                 $this->status = 1;
             } else {
+                //软删除
                 if ($this->is_del == self::ACTIVE_DELETE) {
                     ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['version_id' => $this->id]);
                 }
