@@ -1,8 +1,19 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\controllers;
 
-use common\extensions\uploadFile\UploadFile;
 use yii\web\UploadedFile;
 use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\App;
@@ -15,12 +26,21 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ChannelVersionController implements the CRUD actions for ChannelVersion model.
+ * ChannelVersionController 渠道关联表
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  */
 class ChannelVersionController extends Controller
 {
     /**
-     * {@inheritdoc}
+     * 过滤器
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -35,7 +55,8 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * Lists all ChannelVersion models.
+     * 首页
+     *
      * @return mixed
      */
     public function actionIndex()
@@ -50,8 +71,8 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * Creates a new ChannelVersion model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
+     * 创建页
+     *
      * @return mixed
      */
     public function actionCreate($version_id)
@@ -64,9 +85,7 @@ class ChannelVersionController extends Controller
         $model = new ChannelVersion();
         $model->version_id = $version->id;
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
-
             if ($model->version->platform == App::ANDROID) {
-
                 $file = UploadedFile::getInstances($model, 'url');
 
                 if (empty($file)) {
@@ -88,8 +107,8 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * Updates an existing ChannelVersion model.
-     * If update is successful, the browser will be redirected to the 'view' page.
+     * 更新
+     *
      * @param integer $id
      * @param integer $version_id
      * @return mixed
@@ -106,9 +125,7 @@ class ChannelVersionController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-
             if ($model->version->platform == App::ANDROID && ($file = UploadedFile::getInstances($model, 'url'))) {
-
                 $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], 'version/apk');
 
                 $model->url = $path;
@@ -125,8 +142,8 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * Deletes an existing ChannelVersion model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * 删除
+     *
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
@@ -142,8 +159,8 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * Finds the ChannelVersion model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
+     * 模型查找
+     *
      * @param integer $id
      * @return ChannelVersion the loaded model
      * @throws NotFoundHttpException if the model cannot be found

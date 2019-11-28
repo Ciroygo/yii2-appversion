@@ -110,7 +110,7 @@ class App extends ActiveRecord
     public static function getAppOptions()
     {
         $channels = self::find()->select(['id', 'name'])->where(['is_del' => self::NOT_DELETED])->asArray()->all();
-        return array_combine(array_column($channels,'id'), array_column($channels,'name'));
+        return array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
     }
 
     /**
@@ -139,7 +139,8 @@ class App extends ActiveRecord
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert){
+    public function beforeSave($insert)
+    {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->operated_id = Yii::$app->user->id;

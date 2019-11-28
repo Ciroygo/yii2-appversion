@@ -121,7 +121,7 @@ class ChannelVersion extends ActiveRecord
 
         // 取得应用的所有版本 id，根据 where in 与 channel_id 查询所属渠道最新版本数据
         $versions_arr = $app->getVersions()->select(['id'])->where(['app_id' => $model->app_id])->asArray()->all();
-        $versionIds = array_column($versions_arr,'id');
+        $versionIds = array_column($versions_arr, 'id');
         if (empty($versionIds)) {
             return $this->transformers();
         }
@@ -191,7 +191,8 @@ class ChannelVersion extends ActiveRecord
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert){
+    public function beforeSave($insert)
+    {
         if (parent::beforeSave($insert)) {
             $this->operated_id = Yii::$app->user->id;
             return true;

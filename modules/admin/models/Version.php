@@ -34,7 +34,7 @@ use Yii;
  * @property string $name 版本号 格式 1.1.1
  * @property string $min_name 最小版本号 格式 1.1.1
  * @property int $type 更新类型 1 一般更新 2 强制更新 3 静默更新 4 可忽略更新 5 静默可忽略更新
- * @property int $platform 平台 1 iOS 2 安卓 
+ * @property int $platform 平台 1 iOS 2 安卓
  * @property int $scope 发布范围（1 全量、2 白名单、3 ip发布）
  * @property string $desc 版本描述 最长字符
  * @property int $status 发布范围（1 全量、2 白名单、3 ip发布）
@@ -168,7 +168,8 @@ class Version extends ActiveRecord
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert){
+    public function beforeSave($insert)
+    {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->operated_id = Yii::$app->user->id;

@@ -129,13 +129,13 @@ class Channel extends ActiveRecord
 
         // 已经新增的渠道不显示在下拉框中
         if ($version) {
-           $exists_channels =  $version->getChannels()->select(['id'])->column();
-           if (!empty($exists_channels)) {
-               $query->andWhere(['not in', 'id', $exists_channels]);
-           }
+            $exists_channels = $version->getChannels()->select(['id'])->column();
+            if (!empty($exists_channels)) {
+                $query->andWhere(['not in', 'id', $exists_channels]);
+            }
         }
         $channels = $query->asArray()->all();
-        return array_combine(array_column($channels,'id'), array_column($channels,'name'));
+        return array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
     }
 
     /**
@@ -144,12 +144,12 @@ class Channel extends ActiveRecord
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert){
+    public function beforeSave($insert)
+    {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->status = 0;
                 $this->operated_id = Yii::$app->user->id;
-
             } else {
                 $this->operated_id = Yii::$app->user->id;
             }
@@ -166,12 +166,12 @@ class Channel extends ActiveRecord
      * @param array $changedAttributes
      * @return bool|void
      */
-    public function afterSave($insert, $changedAttributes){
+    public function afterSave($insert, $changedAttributes)
+    {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->status = 0;
                 $this->operated_id = Yii::$app->user->id;
-
             } else {
                 // 软删除
                 if ($this->is_del == self::ACTIVE_DELETE) {

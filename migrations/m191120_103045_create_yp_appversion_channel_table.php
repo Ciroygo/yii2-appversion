@@ -26,11 +26,14 @@ class m191120_103045_create_yp_appversion_channel_table extends Migration
             "PRIMARY KEY(`id`)"
         ], "ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COMMENT='渠道表'");
 
-        $this->batchInsert('{{%yp_appversion_channel}}', ['id', 'name', 'platform', 'code', 'status'],
+        $this->batchInsert(
+            '{{%yp_appversion_channel}}',
+            ['id', 'name', 'platform', 'code', 'status'],
             [
                 [1, '苹果商店', 1, 'official', 1],
                 [2, '安卓官方包', 2, 'official', 1],
-            ]);
+            ]
+        );
     }
 
     /**

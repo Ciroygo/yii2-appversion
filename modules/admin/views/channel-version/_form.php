@@ -22,21 +22,20 @@ use kartik\file\FileInput;
     <?= $form->field($model->version, 'platform')->dropDownList(\yiiplus\appversion\modules\admin\models\App::PLATFORM_OPTIONS, ["disabled" => 'disabled']) ?>
 
     <?php
-        if ($model->channel_id) {
-            $getOptions = false;
-        } else {
-            $getOptions = $version;
-        }
-        ?>
+    if ($model->channel_id) {
+        $getOptions = false;
+    } else {
+        $getOptions = $version;
+    }
+    ?>
     <?= $form->field($model, 'channel_id')->dropdownList(\yiiplus\appversion\modules\admin\models\Channel::getChannelOptions($version->platform, $getOptions ?? false)); ?>
 
     <?php
-        if ($version->platform == \yiiplus\appversion\modules\admin\models\App::IOS) {
-            echo $form->field($model, 'url')->textInput(['maxlength' => true]);
-        } else {
-
-            echo $form->field($model, 'url')->widget(FileInput::classname());
-        }
+    if ($version->platform == \yiiplus\appversion\modules\admin\models\App::IOS) {
+        echo $form->field($model, 'url')->textInput(['maxlength' => true]);
+    } else {
+        echo $form->field($model, 'url')->widget(FileInput::classname());
+    }
     ?>
 
 

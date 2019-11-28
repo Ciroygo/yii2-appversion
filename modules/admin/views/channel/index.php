@@ -31,8 +31,11 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
         <h3 class="box-title"><?= $this->title ?></h3>
 
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
-            <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+            <?= Html::a(
+                '<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
+                ['create'],
+                ['class' => 'btn btn-sm btn-success']
+            ) ?>
         </div>
     </div>
 
@@ -66,19 +69,18 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                         return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                     'status-toggle' => function ($url, $model, $key) {
-                                            if ($model->status == 0) {
-                                                return Html::a('废弃', $url, ['class' => 'btn btn-xs btn-warning']);
-                                            } else {
-                                                return Html::a('启用', $url, ['class' => 'btn btn-xs btn-success']);
-                                            }
-
+                                        if ($model->status == 0) {
+                                            return Html::a('废弃', $url, ['class' => 'btn btn-xs btn-warning']);
+                                        } else {
+                                            return Html::a('启用', $url, ['class' => 'btn btn-xs btn-success']);
+                                        }
                                     },
                                     'delete' => function ($url, $model, $key) {
-                                        return Html::a('删除', $url,
-                                            ['class' => 'btn btn-xs btn-danger',
-                                                'data-pjax'=>"0",
-                                                'data-confirm'=>"您确定要删除此项吗？",
-                                                'data-method'=>"post"]);
+                                        return Html::a(
+                                            '删除',
+                                            $url,
+                                            ['class' => 'btn btn-xs btn-danger', 'data-pjax'=>"0", 'data-confirm'=>"您确定要删除此项吗？", 'data-method'=>"post"]
+                                        );
                                     },
                                 ],
                                 'header' => '操作',
