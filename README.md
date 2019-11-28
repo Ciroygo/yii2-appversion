@@ -85,7 +85,7 @@ Usage
 | timestamp | 是 | string | 时间 |
 | channel | 是 | string | 渠道码 |
 
-```
+```$xslt
 {
     "success": true,
     "data":{
