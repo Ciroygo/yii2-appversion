@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Version;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\VersionSearch */
@@ -13,20 +15,37 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
         'method' => 'get',
-        'options' => [
-            'data-pjax' => 1
-        ],
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
+    <div class="row">
+        <div class="col-sm-3">
+            <?= $form->field($model, 'app_id')->dropDownList(App::getAppOptions()) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'platform')->dropDownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'status')->dropDownList(Version::STATUS_TYPE, ['prompt'=>'选择上架状态']) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'code') ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'min_code') ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'name') ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'min_name') ?>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'app_id') ?>
 
-    <?= $form->field($model, 'code') ?>
 
-    <?= $form->field($model, 'min_code') ?>
-
-    <?= $form->field($model, 'name') ?>
 
     <?php // echo $form->field($model, 'min_name') ?>
 

@@ -1,13 +1,31 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
 use common\models\system\AdminUser;
 use Yii;
-use yiiplus\appversion\modules\admin\models\Version;
 
 /**
- * This is the model class for table "yp_appversion_app".
+ * App 模型基类
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  *
  * @property int $id 主键id
  * @property string $name 应用名称
@@ -20,17 +38,28 @@ use yiiplus\appversion\modules\admin\models\Version;
  */
 class App extends ActiveRecord
 {
+    /**
+     * PLATFORM_OPTIONS APP的类型
+     */
     const PLATFORM_OPTIONS = [
         self::ANDROID => 'Android',
         self::IOS => 'iOS'
     ];
 
-    const ANDROID = 1;
-
-    const IOS = 2;
+    /**
+     * ANDROID 安卓
+     */
+    const ANDROID = 2;
 
     /**
-     * {@inheritdoc}
+     * IOS ios
+     */
+    const IOS = 1;
+
+    /**
+     * 表名
+     *
+     * @return string
      */
     public static function tableName()
     {
@@ -38,13 +67,15 @@ class App extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 基本规则
+     *
+     * @return array
      */
     public function rules()
     {
         return [
             [['name', 'application_id'], 'required'],
-            [['is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['is_del', 'created_at', 'updated_at', 'deleted_at', 'operated_id'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['application_id'], 'string', 'max' => 255],
             ['application_id', 'match', 'pattern'=>'/^[a-zA-Z][a-zA-Z0-9_.]{4,29}$/', 'message'=>'5-30位字母、数字或“_”“.”, 字母开头']
@@ -52,7 +83,9 @@ class App extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 字段中文名
+     *
+     * @return array
      */
     public function attributeLabels()
     {
@@ -70,7 +103,20 @@ class App extends ActiveRecord
     }
 
     /**
+     * 下拉框获取 APP 选项
+     *
+     * @return array|false
+     */
+    public static function getAppOptions()
+    {
+        $channels = self::find()->select(['id', 'name'])->where(['is_del' => self::NOT_DELETED])->asArray()->all();
+        return array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
+    }
+
+    /**
      * 版本关联
+     *
+     * @return \yii\db\ActiveQuery
      */
     public function getVersions()
     {
@@ -85,5 +131,30 @@ class App extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
+    }
+
+    /**
+     * 模型监控器
+     *
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->operated_id = Yii::$app->user->id;
+            } else {
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    $version_ids = $this->getVersions()->select(['id'])->column();
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['in', 'version_id', $version_ids]);
+                    Version::updateAll(['is_del' => self::ACTIVE_DELETE], ['app_id' => $this->id]);
+                }
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

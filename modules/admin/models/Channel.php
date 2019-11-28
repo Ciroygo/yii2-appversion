@@ -1,14 +1,31 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
 use Yii;
-use yiiplus\appversion\modules\admin\models\ChannelVersion;
-use yiiplus\appversion\modules\admin\models\Version;
 use common\models\system\AdminUser;
 
 /**
- * This is the model class for table "yp_appversion_channel".
+ * Channel 模型基类
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
  *
  * @property int $id 主键id
  * @property string $name 渠道名称
@@ -24,7 +41,9 @@ use common\models\system\AdminUser;
 class Channel extends ActiveRecord
 {
     /**
-     * {@inheritdoc}
+     * 表名
+     *
+     * @return string
      */
     public static function tableName()
     {
@@ -32,7 +51,9 @@ class Channel extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 基本规则
+     *
+     * @return array
      */
     public function rules()
     {
@@ -44,7 +65,9 @@ class Channel extends ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * 字段中文名
+     *
+     * @return array
      */
     public function attributeLabels()
     {
@@ -62,11 +85,21 @@ class Channel extends ActiveRecord
         ];
     }
 
+    /**
+     * 渠道包关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
     public function getChannelVersions()
     {
         return $this->hasMany(ChannelVersion::className(), ['channel_id' => 'id']);
     }
 
+    /**
+     * 版本关联
+     *
+     * @return \yii\db\ActiveQuery
+     */
     public function getVersions()
     {
         return $this->hasMany(Version::className(), ['id' => 'version_id'])
@@ -83,19 +116,67 @@ class Channel extends ActiveRecord
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 
-    public static function getChannelOptions($platform)
+    /**
+     * 前端下拉选项获取
+     *
+     * @param $platform
+     * @param bool $version
+     * @return array|false
+     */
+    public static function getChannelOptions($platform, $version = false)
     {
-        $channels = self::find()->select(['id', 'name'])->where(['platform' => $platform])->asArray()->all();
-        return array_combine(array_column($channels,'id'), array_column($channels,'name'));
+        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform])->andWhere(['status' => 2])->andWhere(['is_del' => self::NOT_DELETED]);
+
+        // 已经新增的渠道不显示在下拉框中
+        if ($version) {
+            $exists_channels = $version->getChannels()->select(['id'])->column();
+            if (!empty($exists_channels)) {
+                $query->andWhere(['not in', 'id', $exists_channels]);
+            }
+        }
+        $channels = $query->asArray()->all();
+        return array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
     }
 
-    public function beforeSave($insert){
+    /**
+     * 保存前处理
+     *
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
                 $this->status = 0;
                 $this->operated_id = Yii::$app->user->id;
-
             } else {
+                $this->operated_id = Yii::$app->user->id;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 保存后处理
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @return bool|void
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (parent::beforeSave($insert)) {
+            if ($this->isNewRecord) {
+                $this->status = 0;
+                $this->operated_id = Yii::$app->user->id;
+            } else {
+                // 软删除
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['channel_id' => $this->id]);
+                }
                 $this->operated_id = Yii::$app->user->id;
             }
             return true;

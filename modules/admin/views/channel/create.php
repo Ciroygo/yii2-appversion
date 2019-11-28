@@ -11,7 +11,6 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="channel-create">
     <div class="box">
-
         <div class="box-body">
             <div class="row">
                 <div class="col-sm-6 col-sm-offset-3">

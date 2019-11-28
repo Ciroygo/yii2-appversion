@@ -1,20 +1,39 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yiiplus\appversion\modules\admin\models\App;
 
 /**
- * AppSearch represents the model behind the search form of `yiiplus\appversion\modules\admin\models\App`.
+ * AppSearch 应用搜索模型
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ * @package yiiplus\appversion\modules\admin\models
  */
 class AppSearch extends App
 {
-    public $operator;
-
     /**
-     * {@inheritdoc}
+     * 规则
+     *
+     * @return array
      */
     public function rules()
     {
@@ -24,8 +43,11 @@ class AppSearch extends App
         ];
     }
 
+
     /**
-     * {@inheritdoc}
+     * 场景配置
+     *
+     * @return array
      */
     public function scenarios()
     {
@@ -34,7 +56,7 @@ class AppSearch extends App
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * 搜索
      *
      * @param array $params
      *
@@ -75,6 +97,8 @@ class AppSearch extends App
 
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'application_id', $this->application_id]);
+
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
 
         return $dataProvider;
     }

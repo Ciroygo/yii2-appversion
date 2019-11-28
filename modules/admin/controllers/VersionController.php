@@ -15,6 +15,7 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
 use yiiplus\appversion\modules\admin\models\Version;
 use yiiplus\appversion\modules\admin\models\VersionSearch;
@@ -68,28 +69,30 @@ class VersionController extends Controller
         ]);
     }
 
+
     /**
      * 创建版本
      *
+     * @param $app_id
+     * @param $platform
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+    public function actionCreate($app_id = false, $platform = false)
     {
         $model = new Version();
-        $channelVersion = new ChannelVersion();
+        if ($app_id) {
+            $model->app_id = $app_id;
+        }
+        if ($platform) {
+            $model->platform = $platform;
+        }
 
-        if ($model->load(Yii::$app->request->post(), null) && $channelVersion->load(Yii::$app->request->post(), null)) {
-            $model->operated_id = Yii::$app->user->id ?? 0;
-            $channelVersion->operated_id = Yii::$app->user->id ?? 0;
-
-            $model->save();
-            $model->link('channelVersions', $channelVersion);
-            return $this->redirect('index');
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('create', [
             'model' => $model,
-            'channelVersion' => $channelVersion
         ]);
     }
 
@@ -104,21 +107,33 @@ class VersionController extends Controller
     {
         $model = $this->findModel($id);
 
-        $channelVersions = $model->channelVersions;
-//var_dump(Yii::$app->request->post());die();
-        if ($model->load(Yii::$app->request->post(), null) && $channelVersions[0]->load(Yii::$app->request->post(), null)) {
-            $model->operated_id = Yii::$app->user->id ?? 0;
-            $channelVersions[0]->operated_id = Yii::$app->user->id ?? 0;
-
-            $model->save();
-            $model->link('channelVersions', $channelVersions[0]);
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('update', [
             'model' => $model,
-            'channelVersions' => $channelVersions
         ]);
+    }
+
+    /**
+     * 废弃与启用
+     *
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     */
+    public function actionStatusToggle($id)
+    {
+
+        $model = $this->findModel($id);
+
+        $model->status = ($model->status != 1) ? 1 : 2;
+
+        $model->save();
+
+        Yii::$app->getSession()->setFlash('success', '操作成功');
+        return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
     }
 
     /**
@@ -132,9 +147,12 @@ class VersionController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        if ($model = $this->findModel($id)) {
+            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->save();
+        }
 
-        return $this->redirect(['index']);
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**

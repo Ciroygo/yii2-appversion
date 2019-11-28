@@ -18,7 +18,7 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * VersionSearch 版本搜索
+ * ChannelVersionSearch 渠道关联搜索
  *
  * @category  PHP
  * @package   Yii2
@@ -27,7 +27,7 @@ use yii\data\ActiveDataProvider;
  * @license   https://www.moego.com/licence.txt Licence
  * @link      http://www.moego.com
  */
-class VersionSearch extends Version
+class ChannelVersionSearch extends ChannelVersion
 {
     /**
      * 规则
@@ -37,8 +37,8 @@ class VersionSearch extends Version
     public function rules()
     {
         return [
-            [['id', 'app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
-            [['name', 'min_name', 'desc'], 'safe'],
+            [['id', 'version_id', 'channel_id', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['url'], 'safe'],
         ];
     }
 
@@ -62,7 +62,7 @@ class VersionSearch extends Version
      */
     public function search($params)
     {
-        $query = Version::find();
+        $query = ChannelVersion::find();
 
         // add conditions that should always apply here
 
@@ -70,7 +70,7 @@ class VersionSearch extends Version
             'query' => $query,
         ]);
 
-        $this->load($params, null);
+        $this->load($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -81,13 +81,8 @@ class VersionSearch extends Version
         // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
-            'app_id' => $this->app_id,
-            'code' => $this->code,
-            'min_code' => $this->min_code,
-            'type' => $this->type,
-            'platform' => $this->platform,
-            'scope' => $this->scope,
-            'status' => $this->status,
+            'version_id' => $this->version_id,
+            'channel_id' => $this->channel_id,
             'operated_id' => $this->operated_id,
             'is_del' => $this->is_del,
             'created_at' => $this->created_at,
@@ -95,9 +90,7 @@ class VersionSearch extends Version
             'deleted_at' => $this->deleted_at,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'min_name', $this->min_name])
-            ->andFilterWhere(['like', 'desc', $this->desc]);
+        $query->andFilterWhere(['like', 'url', $this->url]);
 
         $query->andWhere(['is_del' => self::NOT_DELETED]);
 

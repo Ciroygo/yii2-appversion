@@ -14,6 +14,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\bootstrap\Alert;
 
 /* @var $this yii\web\View */
 /* @var $searchModel yiiplus\appversion\modules\admin\models\AppSearch */
@@ -39,11 +40,21 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
 
 <div class="box">
     <div class="box-header">
-        <h3 class="box-title"><?= $this->title ?></h3>
-
-        <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
-            <?= Html::a('<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create'], ['class' => 'btn btn-sm btn-success']) ?>
+        <h3 class="box-title">搜索</h3>
+        <div class="margin-bottom"></div>
+        <div class="row">
+            <div class="col-xs-8">
+                <?php  echo $this->render('_search', ['model' => $searchModel]); ?>
+            </div>
+            <div class="col-xs-4">
+                <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
+                    <?= Html::a(
+                        '<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
+                        ['create'],
+                        ['class' => 'btn btn-sm btn-success']
+                    ) ?>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -56,19 +67,25 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                 <div class="col-sm-12">
                     <?= GridView::widget([
                         'dataProvider' => $dataProvider,
-                        'filterModel' => $searchModel,
                         'columns' => [
                             ['class' => 'yii\grid\SerialColumn'],
-                            'id',
-                            'name',
                             [
-                                'attribute'=>'operator',
+                                'attribute' => 'id',
+                                'filter' => false, //不显示搜索框
+                            ],
+                            [
+                                'attribute' => 'name',
+                                'filter' => false, //不显示搜索框
+                            ],
+                            [
+                                'attribute'=>'operated_id',
                                 'value' => function ($model) {
                                     return $model->operator->username ?? null;
                                 }
                             ],
                             [
                                 'attribute'=>'created_at',
+                                'filter' => false,
                                 'value' => function ($model) {
                                     return date("Y-m-d H:i:s", $model->created_at);
                                 }
@@ -79,11 +96,21 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'buttons' => [
                                     'version-apple' => function ($url, $model, $key) {
                                         $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=1";
-                                        return Html::a('<span class="fa fa-apple"></span>', $url, ['title' => '苹果版本管理']);
+                                        return Html::a('<span class="fa fa-apple"></span> 苹果', $url, ['class' => 'btn btn-xs btn-success', 'title' => '苹果版本管理']);
                                     },
                                     'version-android' => function ($url, $model, $key) {
                                         $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=2";
-                                        return Html::a('<span class="fa fa-android"></span>', $url, ['title' => '安卓版本管理']);
+                                        return Html::a('<span class="fa fa-android"></span> 安卓', $url, ['class' => 'btn btn-xs btn-success', 'title' => '安卓版本管理']);
+                                    },
+                                    'update' => function ($url, $model, $key) {
+                                        return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                    },
+                                    'delete' => function ($url, $model, $key) {
+                                        return Html::a(
+                                            '删除',
+                                            $url,
+                                            ['class' => 'btn btn-xs btn-danger', 'data-pjax'=>"0", 'data-confirm'=>"您确定要删除此项吗？", 'data-method'=>"post"]
+                                        );
                                     },
                                 ],
                                 'header' => '操作',

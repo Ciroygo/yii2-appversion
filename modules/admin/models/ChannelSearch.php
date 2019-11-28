@@ -1,18 +1,39 @@
 <?php
+/**
+ * 萌股 - 二次元潮流聚集地
+ *
+ * PHP version 7
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ */
 
 namespace yiiplus\appversion\modules\admin\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use yiiplus\appversion\modules\admin\models\Channel;
 
 /**
- * ChannelSearch represents the model behind the search form of `yiiplus\appversion\modules\admin\models\Channel`.
+ * ChannelSearch 渠道搜索模型
+ *
+ * @category  PHP
+ * @package   Yii2
+ * @author    陈思辰 <chensichen@mocaapp.cn>
+ * @copyright 2019 重庆次元能力科技有限公司
+ * @license   https://www.moego.com/licence.txt Licence
+ * @link      http://www.moego.com
+ * @package yiiplus\appversion\modules\admin\models
  */
 class ChannelSearch extends Channel
 {
     /**
-     * {@inheritdoc}
+     * 规则
+     *
+     * @return array
      */
     public function rules()
     {
@@ -23,7 +44,9 @@ class ChannelSearch extends Channel
     }
 
     /**
-     * {@inheritdoc}
+     * 场景配置
+     *
+     * @return array
      */
     public function scenarios()
     {
@@ -32,7 +55,7 @@ class ChannelSearch extends Channel
     }
 
     /**
-     * Creates data provider instance with search query applied
+     * 搜索
      *
      * @param array $params
      *
@@ -70,6 +93,8 @@ class ChannelSearch extends Channel
 
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'code', $this->code]);
+
+        $query->andWhere(['is_del' => self::NOT_DELETED]);
 
         return $dataProvider;
     }
