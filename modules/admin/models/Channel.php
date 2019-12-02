@@ -125,7 +125,7 @@ class Channel extends ActiveRecord
      */
     public static function getChannelOptions($platform, $version = false)
     {
-        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform])->andWhere(['status' => 2])->andWhere(['is_del' => self::NOT_DELETED]);
+        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform])->andWhere(['status' => 1])->andWhere(['is_del' => self::NOT_DELETED]);
 
         // 已经新增的渠道不显示在下拉框中
         if ($version) {
@@ -170,7 +170,7 @@ class Channel extends ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-                $this->status = 0;
+                $this->status = 1;
                 $this->operated_id = Yii::$app->user->id;
             } else {
                 // 软删除

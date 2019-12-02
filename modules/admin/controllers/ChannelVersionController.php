@@ -84,7 +84,7 @@ class ChannelVersionController extends Controller
         }
         $model = new ChannelVersion();
         $model->version_id = $version->id;
-        if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+        if ($model->load(Yii::$app->request->post(), null)) {
             if ($model->version->platform == App::ANDROID) {
                 $file = UploadedFile::getInstances($model, 'url');
 
@@ -93,10 +93,15 @@ class ChannelVersionController extends Controller
                     return $this->redirect(Yii::$app->request->referrer);
                 }
 
-                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], 'version/apk');
-
-                $model->url = $path;
+                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], ChannelVersion::UPLOAD_APK_DIR);
+                if ($path) {
+                    $model->url = $path;
+                } else {
+                    Yii::$app->getSession()->setFlash('error', '渠道包上传失败');
+                    return $this->redirect(['index',  'version_id' => $version->id]);
+                }
             }
+            $model->save();
             return $this->redirect(['index',  'version_id' => $version->id]);
         }
 
@@ -126,7 +131,7 @@ class ChannelVersionController extends Controller
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             if ($model->version->platform == App::ANDROID && ($file = UploadedFile::getInstances($model, 'url'))) {
-                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], 'version/apk');
+                $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], ChannelVersion::UPLOAD_APK_DIR);
 
                 $model->url = $path;
 

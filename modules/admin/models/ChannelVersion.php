@@ -39,6 +39,10 @@ use Yii;
  */
 class ChannelVersion extends ActiveRecord
 {
+    /**
+     * 上传路径 上传路径
+     */
+    const UPLOAD_APK_DIR = 'version/apk';
 
     /**
      * 表名
@@ -120,7 +124,7 @@ class ChannelVersion extends ActiveRecord
         }
 
         // 取得应用的所有版本 id，根据 where in 与 channel_id 查询所属渠道最新版本数据
-        $versions_arr = $app->getVersions()->select(['id'])->where(['app_id' => $model->app_id])->asArray()->all();
+        $versions_arr = $app->getVersions()->select(['id'])->where(['app_id' => $model->app_id])->where(['is_del' => \common\db\ActiveRecord::NOT_DELETED])->asArray()->all();
         $versionIds = array_column($versions_arr, 'id');
         if (empty($versionIds)) {
             return $this->transformers();
@@ -135,6 +139,7 @@ class ChannelVersion extends ActiveRecord
         $channelVersions = ChannelVersion::find()
             ->joinWith('version')
             ->where(['channel_id' => $model->channel])
+            ->andWhere([ChannelVersion::tableName() . '.is_del' => \common\db\ActiveRecord::NOT_DELETED])
             ->andWhere([Version::tableName() . '.platform' => $model->platform])
             ->andWhere(['in', 'version_id', $versionIds])
             ->orderBy([Version::tableName() . '.code' => SORT_DESC])

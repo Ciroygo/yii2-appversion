@@ -119,7 +119,7 @@ class ChannelController extends Controller
     {
         $model = $this->findModel($id);
 
-        $model->status = ($model->status != 0) ? 0 : 2;
+        $model->status = ($model->status != 1) ? 1 : 2;
 
         $model->save();
 
