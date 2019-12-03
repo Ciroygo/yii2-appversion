@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiplus\appversion\modules\version;
+namespace yiiplus\appversion\modules\app;
 
 /**
  * version module definition class
