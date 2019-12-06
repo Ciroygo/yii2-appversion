@@ -33,8 +33,8 @@ Usage
 ````
 定义 Api 接口 .app/config/main.php 添加 modules
 ```$xslt
-'version' => [
-    'class' => 'yiiplus\appversion\modules\version\Module',
+'appversion' => [
+    'class' => 'yiiplus\appversion\modules\appversion\Module',
 ],
 ````
 并且需要在 urlManager 数组中添加
@@ -70,7 +70,7 @@ Usage
 -----
 
 **请求URL：**
-- `/version`
+- `/appversion`
 
 **请求方式：**
 - GET

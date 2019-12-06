@@ -12,7 +12,7 @@
  * @link      http://www.moego.com
  */
 
-namespace yiiplus\appversion\modules\app\controllers;
+namespace yiiplus\appversion\modules\appversion\controllers;
 
 use app\extensions\ApiException;
 use yii\base\DynamicModel;

@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiplus\appversion\modules\app;
+namespace yiiplus\appversion\modules\appversion;
 
 /**
  * version module definition class
@@ -10,7 +10,7 @@ class Module extends \yii\base\Module
     /**
      * {@inheritdoc}
      */
-    public $controllerNamespace = 'yiiplus\appversion\modules\app\controllers';
+    public $controllerNamespace = 'yiiplus\appversion\modules\appversion\controllers';
 
     /**
      * {@inheritdoc}
