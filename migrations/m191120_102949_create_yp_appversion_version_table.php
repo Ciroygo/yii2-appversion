@@ -9,7 +9,6 @@ class m191120_102949_create_yp_appversion_version_table extends Migration
 {
     /**
      * 执行迁移
-     *
      */
     public function safeUp()
     {
