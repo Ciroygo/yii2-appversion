@@ -126,32 +126,34 @@ class ChannelVersion extends ActiveRecord
     }
 
     /**
-     * @param int $app_id
-     * @param int $channel_id
+     * 删除 app 版本控制缓存
+     *
+     * @param int $appId 应用id
+     * @param int $channelId 渠道id
      * @return bool
      */
-    public function delRedisVersion(int $app_id = 0, int $channel_id = 0)
+    public function delRedisVersion(int $appId = 0, int $channelId = 0)
     {
-        if ($app_id && $channel_id) {
-            $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app_id, $channel_id);
+        if ($appId && $channelId) {
+            $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $appId, $channelId);
             yii::$app->redis->del($redisKey);
             return true;
         }
-        if (!$channel_id) {
+        if (!$channelId) {
             $channels = Channel::findAll(['is_del' => Channel::NOT_DELETED, 'status' => Channel::ACTIVE_STATUS]);
             if (!empty($channels)) {
                 foreach ($channels as $channel) {
-                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app_id, $channel->id);
+                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $appId, $channel->id);
                     yii::$app->redis->del($redisKey);
                 }
             }
             return true;
         }
-        if (!$app_id) {
+        if (!$appId) {
             $apps = App::findAll(['is_del' => App::NOT_DELETED]);
             if (!empty($apps)) {
                 foreach ($apps as $app) {
-                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app->id, $channel_id);
+                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app->id, $channelId);
                     yii::$app->redis->del($redisKey);
                 }
             }
@@ -221,7 +223,7 @@ class ChannelVersion extends ActiveRecord
                 yii::$app->redis->set($redisKey, ChannelVersion::APP_CHANNEL_NOT_EXIST);
             }
             // 预防缓存雪崩让过期时间加一个随机值
-            yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE + rand(0, 60));
+            yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE + rand(0, 60 * 60));
 
             return $this->getLatest($model);
         }

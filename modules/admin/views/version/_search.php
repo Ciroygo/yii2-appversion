@@ -19,7 +19,16 @@ use yiiplus\appversion\modules\admin\models\Version;
 
     <div class="row">
         <div class="col-sm-3">
+            <?= $form->field($model, 'name') ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'min_name') ?>
+        </div>
+        <div class="col-sm-3">
             <?= $form->field($model, 'app_id')->dropDownList(App::getAppOptions()) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
         </div>
         <div class="col-sm-3">
             <?= $form->field($model, 'platform')->dropDownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台']) ?>
@@ -27,15 +36,7 @@ use yiiplus\appversion\modules\admin\models\Version;
         <div class="col-sm-3">
             <?= $form->field($model, 'status')->dropDownList(Version::STATUS_TYPE, ['prompt'=>'选择上架状态']) ?>
         </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'name') ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'min_name') ?>
-        </div>
+
     </div>
 
     <div class="form-group">

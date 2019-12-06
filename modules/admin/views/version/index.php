@@ -69,10 +69,10 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 return $model->app->name ?? null;
                             }
                         ],
-                        'code',
-                        'min_code',
                         'name',
                         'min_name',
+                        'code',
+                        'min_code',
                         [
                             'attribute'=>'type',
                             'value' => function ($model) {
