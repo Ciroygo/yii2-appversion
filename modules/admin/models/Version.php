@@ -30,8 +30,6 @@ use yii\db\ActiveQuery;
  *
  * @property int $id 主键id
  * @property int $app_id 应用关联id
- * @property int $code 版本号 7152
- * @property int $min_code 最小版本号 7000
  * @property string $name 版本号 格式 1.1.1
  * @property string $min_name 最小版本号 格式 1.1.1
  * @property int $type 更新类型 1 一般更新 2 强制更新 3 静默更新 4 可忽略更新 5 静默可忽略更新
@@ -120,8 +118,6 @@ class Version extends ActiveRecord
         return [
             'id' => 'ID',
             'app_id' => '所属应用',
-            'code' => '版本号',
-            'min_code' => '最小版本号',
             'name' => '版本名',
             'min_name' => '最小版本名',
             'type' => '更新类型',
@@ -181,16 +177,17 @@ class Version extends ActiveRecord
      * @param $versionName
      * @return bool|float|int
      */
-    public function versionNameToCode($versionName)
+    public static function versionNameToCode($versionName)
     {
         $ret = preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $versionName);
         if ($ret) {
             list($major, $minor, $sub) = explode('.', $versionName);
-            $versionCode = 1000000000 + $major*1000000 + $minor*1000 + $sub;
+            $versionCode = 1000000000 + $major * 1000000 + $minor * 1000 + $sub;
             return $versionCode;
         }
         return false;
     }
+
     /**
      * 模型监控器
      *
@@ -200,8 +197,6 @@ class Version extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            $this->code = $this->versionNameToCode($this->name) ?? 0;
-            $this->min_code = $this->versionNameToCode($this->min_name) ?? 0;
             if ($this->isNewRecord) {
                 $this->operated_id = Yii::$app->user->id;
                 $this->status = self::STATUS_OFF;

@@ -37,7 +37,7 @@ class VersionSearch extends Version
     public function rules()
     {
         return [
-            [['id', 'app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['id', 'app_id', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name', 'min_name', 'desc'], 'safe'],
         ];
     }
@@ -82,8 +82,6 @@ class VersionSearch extends Version
         $query->andFilterWhere([
             'id' => $this->id,
             'app_id' => $this->app_id,
-            'code' => $this->code,
-            'min_code' => $this->min_code,
             'type' => $this->type,
             'platform' => $this->platform,
             'scope' => $this->scope,

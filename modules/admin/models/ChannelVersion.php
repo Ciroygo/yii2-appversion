@@ -185,7 +185,7 @@ class ChannelVersion extends ActiveRecord
                 if (!empty($versions)) {
                     array_multisort(array_column($versions, 'code'), SORT_DESC, $versions);
                     foreach ($versions as $version) {
-                        if ($model->code >= $version['min_code'] ?? 0) {
+                        if (Version::versionNameToCode($model->name) >= Version::versionNameToCode($version['min_name']) ?? 0) {
                             return $this->transformers($version);
                         }
                     }
@@ -248,7 +248,6 @@ class ChannelVersion extends ActiveRecord
     public function transformers($data = [])
     {
         $version_info = [
-            'code' => $data['code'] ?? 0,
             'name' => $data['name'] ?? "0.0.0",
             'type' => $data['type'] ?? 1,
             'scope' => $data['scope'] ?? 1,

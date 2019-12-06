@@ -71,8 +71,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         ],
                         'name',
                         'min_name',
-                        'code',
-                        'min_code',
                         [
                             'attribute'=>'type',
                             'value' => function ($model) {

@@ -59,8 +59,8 @@ class IndexController extends Controller
     public function actionIndex()
     {
         $model = DynamicModel::validateData(Yii::$app->request->post(), [
-            [['app_id', 'platform', 'code', 'name', 'channel'], 'required'],
-            [['app_id', 'platform', 'code', 'channel'], 'integer'],
+            [['app_id', 'platform', 'name', 'channel'], 'required'],
+            [['app_id', 'platform', 'channel'], 'integer'],
             ['name', 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 999.999.999'],
         ]);
 
