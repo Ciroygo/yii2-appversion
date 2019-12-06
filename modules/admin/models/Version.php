@@ -61,7 +61,7 @@ class Version extends ActiveRecord
      */
     const SCOPE_TYPE = [
         1 => '全量更新',
-        2 => '白名单'
+        2 => 'IP白名单'
     ];
 
     /**

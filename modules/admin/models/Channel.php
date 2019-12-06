@@ -50,9 +50,19 @@ class Channel extends ActiveRecord
     ];
 
     /**
-     * 启用状态
+     * 启用
      */
     const ACTIVE_STATUS = 1;
+
+    /**
+     * iOS 官方渠道
+     */
+    const IOS_OFFICIAL = 1;
+
+    /**
+     * Android 官方渠道
+     */
+    const ANDROID_OFFICIAL = 2;
 
     /**
      * 表名
@@ -72,7 +82,9 @@ class Channel extends ActiveRecord
     public function rules()
     {
         return [
-            [['platform', 'name', 'code'],'required'],
+            [['name', 'code'],'required'],
+            ['platform', 'default', 'value' => App::ANDROID],
+            ['status', 'default', 'value' => self::ACTIVE_STATUS],
             [['platform', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['name', 'code'], 'string', 'max' => 64],
         ];
@@ -161,12 +173,13 @@ class Channel extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord) {
-                $this->status = 0;
-                $this->operated_id = Yii::$app->user->id;
-            } else {
-                $this->operated_id = Yii::$app->user->id;
+            if (!$this->isNewRecord) {
+                // 软删除
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['channel_id' => $this->id]);
+                }
             }
+            $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
             return false;
@@ -182,21 +195,7 @@ class Channel extends ActiveRecord
      */
     public function afterSave($insert, $changedAttributes)
     {
-        if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord) {
-                $this->status = 1;
-                $this->operated_id = Yii::$app->user->id;
-            } else {
-                // 软删除
-                if ($this->is_del == self::ACTIVE_DELETE) {
-                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['channel_id' => $this->id]);
-                }
-                $this->operated_id = Yii::$app->user->id;
-            }
-            (new ChannelVersion())->delRedisVersion(0, $this->id);
-            return true;
-        } else {
-            return false;
-        }
+        parent::afterSave($insert, $changedAttributes);
+        (new ChannelVersion())->delRedisVersion(0, $this->id);
     }
 }

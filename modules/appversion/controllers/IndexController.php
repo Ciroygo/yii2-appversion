@@ -61,7 +61,7 @@ class IndexController extends Controller
         $model = DynamicModel::validateData(Yii::$app->request->post(), [
             [['app_id', 'platform', 'name', 'channel'], 'required'],
             [['app_id', 'platform', 'channel'], 'integer'],
-            ['name', 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 999.999.999'],
+            ['name', 'match', 'pattern'=>'/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', 'message'=>'格式形如为 999.999.999'],
         ]);
 
         if ($model->hasErrors()) {

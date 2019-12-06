@@ -144,16 +144,14 @@ class App extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if ($this->isNewRecord) {
-                $this->operated_id = Yii::$app->user->id;
-            } else {
+            if (!$this->isNewRecord) {
                 if ($this->is_del == self::ACTIVE_DELETE) {
                     $version_ids = $this->getVersions()->select(['id'])->column();
                     ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['in', 'version_id', $version_ids]);
                     Version::updateAll(['is_del' => self::ACTIVE_DELETE], ['app_id' => $this->id]);
                 }
-                $this->operated_id = Yii::$app->user->id;
             }
+            $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
             return false;

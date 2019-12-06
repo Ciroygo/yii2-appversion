@@ -56,9 +56,14 @@ class ChannelVersion extends ActiveRecord
     const REDIS_APP_CHANNEL_VERSIONS_EXPIRE = 60 * 60;
 
     /**
-     * 当不存在 app_id 和 channel_id 防止缓存穿透的 redis 保留键
+     * APP 或者版本信息不存在
      */
-    const APP_CHANNEL_NOT_EXIST = -1;
+    const APP_VERSION_NOT_EXIST = -1;
+
+    /**
+     * 渠道 不存在
+     */
+    const CHANNEL_NOT_EXIST = -2;
 
     /**
      * 表名
@@ -177,15 +182,22 @@ class ChannelVersion extends ActiveRecord
 
         // 查询到缓存则寻找匹配版本信息进行返回
         if ($result) {
-            if ($result != ChannelVersion::APP_CHANNEL_NOT_EXIST && ($versions = json_decode($result, true))) {
+            // 安卓如果渠道不存在则调用官方包更新
+            if ($result == ChannelVersion::CHANNEL_NOT_EXIST) {
+                $model->channel = Channel::ANDROID_OFFICIAL;
+                return $this->getLatest($model);
+            }
+
+            if ($result != ChannelVersion::APP_VERSION_NOT_EXIST && ($versions = json_decode($result, true))) {
                 // 按照版本号排序并比较出最新的版本
                 $versions = array_filter($versions, function ($val) use ($model) {
                     return ($val['platform'] == $model->platform);
                 });
                 if (!empty($versions)) {
-                    array_multisort(array_column($versions, 'code'), SORT_DESC, $versions);
+                    array_multisort(array_column($versions, 'name'), SORT_DESC, $versions);
                     foreach ($versions as $version) {
                         if (Version::versionNameToCode($model->name) >= Version::versionNameToCode($version['min_name']) ?? 0) {
+                            $version['is_update'] = true;
                             return $this->transformers($version);
                         }
                     }
@@ -218,9 +230,15 @@ class ChannelVersion extends ActiveRecord
             // 将版本信息入 redis 并回调 getLatest 进行return
             if ($versions) {
                 yii::$app->redis->set($redisKey, json_encode($versions));
+            } elseif (($model->platform == App::ANDROID)
+                && ($model->channel != Channel::ANDROID_OFFICIAL)
+                && App::findOne(['is_del' => App::NOT_DELETED, 'id' => $model->app_id])
+                && !Channel::findOne(['is_del' => Channel::NOT_DELETED, 'id' => $model->channel, 'status' => Channel::ACTIVE_STATUS])) {
+                // 如果是 Android 请求的不是官方包 存在 app 但不存在 channel 的，调用官方包下载
+                yii::$app->redis->set($redisKey, ChannelVersion::CHANNEL_NOT_EXIST);
             } else {
                 // 不存在的 app_id & channel_id 则缓存一个模板版本信息（预防缓存穿透）
-                yii::$app->redis->set($redisKey, ChannelVersion::APP_CHANNEL_NOT_EXIST);
+                yii::$app->redis->set($redisKey, ChannelVersion::APP_VERSION_NOT_EXIST);
             }
             // 预防缓存雪崩让过期时间加一个随机值
             yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE + rand(0, 60 * 60));
@@ -249,6 +267,7 @@ class ChannelVersion extends ActiveRecord
     {
         $version_info = [
             'name' => $data['name'] ?? "0.0.0",
+            'is_update' => $data['is_update'] ?? false,
             'type' => $data['type'] ?? 1,
             'scope' => $data['scope'] ?? 1,
             'desc' => $data['desc'] ?? '',
