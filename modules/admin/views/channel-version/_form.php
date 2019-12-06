@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use kartik\file\FileInput;
+use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Channel;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\ChannelVersion */
@@ -15,11 +17,9 @@ use kartik\file\FileInput;
 
     <?= $form->field($version->app, 'name')->textInput(["disabled" => 'disabled']) ?>
 
-    <?= $form->field($model->version, 'code')->textInput(["disabled" => 'disabled']) ?>
-
     <?= $form->field($model->version, 'name')->textInput(["disabled" => 'disabled']) ?>
 
-    <?= $form->field($model->version, 'platform')->dropDownList(\yiiplus\appversion\modules\admin\models\App::PLATFORM_OPTIONS, ["disabled" => 'disabled']) ?>
+    <?= $form->field($model->version, 'platform')->dropDownList(App::PLATFORM_OPTIONS, ["disabled" => 'disabled']) ?>
 
     <?php
     if ($model->channel_id) {
@@ -28,19 +28,50 @@ use kartik\file\FileInput;
         $getOptions = $version;
     }
     ?>
-    <?= $form->field($model, 'channel_id')->dropdownList(\yiiplus\appversion\modules\admin\models\Channel::getChannelOptions($version->platform, $getOptions ?? false)); ?>
+    <?php
+    $html =  <<<EOF
+<a role="button" data-toggle="collapse" href="#channelHelp" aria-expanded="false" aria-controls="channelHelp">
+  <i class="fa fa-fw fa-question-circle"></i>
+</a>
+EOF;
+    ?>
+    <?= $form->field($model, 'channel_id')->dropdownList(Channel::getChannelOptions($version->platform, $getOptions ?? false))->label("渠道选择" . $html); ?>
+    <div class="collapse" id="channelHelp">
+        <div class="well">
+            <h4>1 IOS</h4>
+            IOS 仅有 official 官方渠道，渠道地址填 App Store 地址
+            <h4>2 安卓</h4>
+            安卓 除了有 official 官方渠道，还有其他应用市场渠道，添加地方为渠道管理，链接地址需要上传渠道包生成
+        </div>
+    </div>
 
     <?php
-    if ($version->platform == \yiiplus\appversion\modules\admin\models\App::IOS) {
+    if ($version->platform == App::IOS) {
         echo $form->field($model, 'url')->textInput(['maxlength' => true]);
     } else {
-        echo $form->field($model, 'url')->widget(FileInput::classname());
+        echo $form->field($model, 'url')
+            ->widget(
+                FileInput::classname(),
+                [
+                    'options' => ['multiple' => false],
+                    'pluginOptions' =>
+                        [
+                            'previewFileType' => 'image',
+                            'initialPreviewAsData' => true,
+                            'dropZoneTitle' => '上传apk包',
+                            'maxFileCount' => 1,
+                            'showUpload' => false,
+                            'fileActionSettings' =>
+                                ['showRemove' => false]
+                        ],
+                ]
+            );
     }
     ?>
 
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

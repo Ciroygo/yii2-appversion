@@ -12,13 +12,11 @@
  * @link      http://www.moego.com
  */
 
-namespace yiiplus\appversion\modules\version\controllers;
+namespace yiiplus\appversion\modules\app\controllers;
 
 use app\extensions\ApiException;
 use yii\base\DynamicModel;
-use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
-use yiiplus\appversion\modules\admin\models\Version;
 use app\modules\Controller;
 use Yii;
 
@@ -34,6 +32,22 @@ use Yii;
  */
 class IndexController extends Controller
 {
+    /**
+     * 行为控制
+     *
+     * @return array
+     */
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['authValidate'] = [
+            'class' => 'app\extensions\auth\AccessTokenAuth',
+            'optional' => ['*'],
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * 版本接口最新信息获取
@@ -44,11 +58,10 @@ class IndexController extends Controller
      */
     public function actionIndex()
     {
-
         $model = DynamicModel::validateData(Yii::$app->request->post(), [
             [['app_id', 'platform', 'code', 'name', 'channel'], 'required'],
             [['app_id', 'platform', 'code', 'channel'], 'integer'],
-            ['name', 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 1.1.1'],
+            ['name', 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 999.999.999'],
         ]);
 
         if ($model->hasErrors()) {
@@ -56,7 +69,8 @@ class IndexController extends Controller
             throw new ApiException(ApiException::SYSTEM_PARAM_ERROR);
         }
 
-        $version = (new ChannelVersion)->latest($model);
+        // 根据版本号，获取当前最新的版本
+        $version = (new ChannelVersion)->getLatest($model);
         return $version;
     }
 }

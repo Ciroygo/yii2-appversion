@@ -16,6 +16,7 @@ namespace yiiplus\appversion\modules\admin\models;
 
 use Yii;
 use common\models\system\AdminUser;
+use yii\db\ActiveQuery;
 
 /**
  * Channel 模型基类
@@ -40,6 +41,19 @@ use common\models\system\AdminUser;
  */
 class Channel extends ActiveRecord
 {
+    /**
+     * 启用状态
+     */
+    const STATUS_OPTIONS = [
+        self::ACTIVE_STATUS => '正常',
+        2 => '废弃'
+    ];
+
+    /**
+     * 启用状态
+     */
+    const ACTIVE_STATUS = 1;
+
     /**
      * 表名
      *
@@ -76,8 +90,8 @@ class Channel extends ActiveRecord
             'name' => '渠道名',
             'platform' => '平台',
             'code' => '渠道码',
-            'status' => 'Status',
-            'operated_id' => 'Operated ID',
+            'status' => '启用状态',
+            'operated_id' => '操作人',
             'is_del' => 'Is Del',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -88,7 +102,7 @@ class Channel extends ActiveRecord
     /**
      * 渠道包关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getChannelVersions()
     {
@@ -98,7 +112,7 @@ class Channel extends ActiveRecord
     /**
      * 版本关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getVersions()
     {
@@ -109,7 +123,7 @@ class Channel extends ActiveRecord
     /**
      * 管理员关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOperator()
     {
@@ -179,6 +193,7 @@ class Channel extends ActiveRecord
                 }
                 $this->operated_id = Yii::$app->user->id;
             }
+            (new ChannelVersion())->delRedisVersion(0, $this->id);
             return true;
         } else {
             return false;

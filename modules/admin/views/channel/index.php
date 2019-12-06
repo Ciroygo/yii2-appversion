@@ -3,6 +3,8 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\bootstrap\Alert;
+use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Channel;
 
 /* @var $this yii\web\View */
 /* @var $searchModel yiiplus\appversion\modules\admin\models\ChannelSearch */
@@ -40,7 +42,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
     </div>
 
     <div class="box-body">
-        <div id="example2_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
+        <div id="example2_wrapper">
             <div class="row"><div class="col-sm-6"></div>
                 <div class="col-sm-6"></div>
             </div>
@@ -53,10 +55,33 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             ['class' => 'yii\grid\SerialColumn'],
                             'id',
                             'name',
-                            'platform',
+                            [
+                                'attribute'=>'platform',
+                                'filter' => Html::activeDropDownList(
+                                    $searchModel,
+                                    'platform',
+                                    App::PLATFORM_OPTIONS,
+                                    ['prompt' =>['text'=>'全部', 'options'=>[]], 'class'=> 'form-control']
+                                ),
+                                'value' => function ($model) {
+                                    return App::PLATFORM_OPTIONS[$model->platform];
+                                }
+                            ],
                             'code',
                             [
-                                'attribute'=>'operator',
+                                'attribute'=>'status',
+                                'filter' => Html::activeDropDownList(
+                                    $searchModel,
+                                    'status',
+                                    Channel::STATUS_OPTIONS,
+                                    ['prompt' =>['text'=>'全部', 'options'=>[]], 'class'=> 'form-control']
+                                ),
+                                'value' => function ($model) {
+                                    return Channel::STATUS_OPTIONS[$model->status];
+                                }
+                            ],
+                            [
+                                'attribute'=>'operated_id',
                                 'value' => function ($model) {
                                     return $model->operator->username ?? null;
                                 }
@@ -69,7 +94,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                         return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                     'status-toggle' => function ($url, $model, $key) {
-                                        if ($model->status == 0) {
+                                        if ($model->status == 1) {
                                             return Html::a('废弃', $url, ['class' => 'btn btn-xs btn-warning']);
                                         } else {
                                             return Html::a('启用', $url, ['class' => 'btn btn-xs btn-success']);

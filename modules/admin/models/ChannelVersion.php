@@ -16,6 +16,7 @@ namespace yiiplus\appversion\modules\admin\models;
 
 use common\models\system\AdminUser;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * ChannelVersion 渠道包模型
@@ -43,6 +44,21 @@ class ChannelVersion extends ActiveRecord
      * 上传路径 上传路径
      */
     const UPLOAD_APK_DIR = 'version/apk';
+
+    /**
+     * redis 根据 app_id 和 channel_id 保存版本信息
+     */
+    const REDIS_APP_CHANNEL_VERSIONS = 'app_%s_channel_%s_versions';
+
+    /**
+     * 版本缓存过期时间
+     */
+    const REDIS_APP_CHANNEL_VERSIONS_EXPIRE = 60 * 60;
+
+    /**
+     * 当不存在 app_id 和 channel_id 防止缓存穿透的 redis 保留键
+     */
+    const APP_CHANNEL_NOT_EXIST = -1;
 
     /**
      * 表名
@@ -81,7 +97,7 @@ class ChannelVersion extends ActiveRecord
             'version_id' => '版本',
             'channel_id' => '渠道',
             'url' => '链接地址',
-            'operated_id' => 'Operated ID',
+            'operated_id' => '操作人',
             'is_del' => 'Is Del',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
@@ -92,7 +108,7 @@ class ChannelVersion extends ActiveRecord
     /**
      * 渠道关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getChannel()
     {
@@ -102,11 +118,46 @@ class ChannelVersion extends ActiveRecord
     /**
      * 版本关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getVersion()
     {
         return $this->hasOne(Version::className(), ['id' => 'version_id']);
+    }
+
+    /**
+     * @param int $app_id
+     * @param int $channel_id
+     * @return bool
+     */
+    public function delRedisVersion(int $app_id = 0, int $channel_id = 0)
+    {
+        if ($app_id && $channel_id) {
+            $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app_id, $channel_id);
+            yii::$app->redis->del($redisKey);
+            return true;
+        }
+        if (!$channel_id) {
+            $channels = Channel::findAll(['is_del' => Channel::NOT_DELETED, 'status' => Channel::ACTIVE_STATUS]);
+            if (!empty($channels)) {
+                foreach ($channels as $channel) {
+                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app_id, $channel->id);
+                    yii::$app->redis->del($redisKey);
+                }
+            }
+            return true;
+        }
+        if (!$app_id) {
+            $apps = App::findAll(['is_del' => App::NOT_DELETED]);
+            if (!empty($apps)) {
+                foreach ($apps as $app) {
+                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app->id, $channel_id);
+                    yii::$app->redis->del($redisKey);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -115,54 +166,71 @@ class ChannelVersion extends ActiveRecord
      * @param $model
      * @return array
      */
-    public function latest($model)
+    public function getLatest($model)
     {
-        $app = App::findOne($model->app_id);
-        if (!$app) {
-            // 默认给客户端一个不报错的默认更新信息
-            return $this->transformers();
-        }
+        // 查询缓存
+        $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $model->app_id, $model->channel);
 
-        // 取得应用的所有版本 id，根据 where in 与 channel_id 查询所属渠道最新版本数据
-        $versions_arr = $app->getVersions()->select(['id'])->where(['app_id' => $model->app_id])->where(['is_del' => \common\db\ActiveRecord::NOT_DELETED])->asArray()->all();
-        $versionIds = array_column($versions_arr, 'id');
-        if (empty($versionIds)) {
-            return $this->transformers();
-        }
+        $result = yii::$app->redis->get($redisKey);
 
-        // 检查渠道是否存在或弃用
-        $channel = Channel::findOne($model->channel);
-        if (empty($channel) && ($channel->status == 0)) {
-            return $this->transformers();
-        }
-
-        $channelVersions = ChannelVersion::find()
-            ->joinWith('version')
-            ->where(['channel_id' => $model->channel])
-            ->andWhere([ChannelVersion::tableName() . '.is_del' => \common\db\ActiveRecord::NOT_DELETED])
-            ->andWhere([Version::tableName() . '.platform' => $model->platform])
-            ->andWhere(['in', 'version_id', $versionIds])
-            ->orderBy([Version::tableName() . '.code' => SORT_DESC])
-            ->all();
-
-        if (empty($channelVersions)) {
-            return $this->transformers();
-        }
-
-        foreach ($channelVersions as $channelVersion) {
-            if ($model->code > $channelVersion->version->min_code ?? 0) {
-                return $this->transformers($channelVersion);
-                break;
+        // 查询到缓存则寻找匹配版本信息进行返回
+        if ($result) {
+            if ($result != ChannelVersion::APP_CHANNEL_NOT_EXIST && ($versions = json_decode($result, true))) {
+                // 按照版本号排序并比较出最新的版本
+                $versions = array_filter($versions, function ($val) use ($model) {
+                    return ($val['platform'] == $model->platform);
+                });
+                if (!empty($versions)) {
+                    array_multisort(array_column($versions, 'code'), SORT_DESC, $versions);
+                    foreach ($versions as $version) {
+                        if ($model->code >= $version['min_code'] ?? 0) {
+                            return $this->transformers($version);
+                        }
+                    }
+                }
             }
-        }
+            // 不存在或者没有版本信息给出基本返回模板
+            return $this->transformers();
+        } else {
+            // 查询不到缓存则查数据库
+            // 根据 app_id 和 channel_id 用 Version joinWith ChannelVersion 查出对应应用与渠道所有版本信息
+            $versions = Version::find()
+                ->joinWith(['channelVersions', 'channels'], false)
+                ->select([
+                    Version::tableName() . '.*',
+                    ChannelVersion::tableName() . '.channel_id',
+                    ChannelVersion::tableName() . '.version_id',
+                    ChannelVersion::tableName() . '.url',
+                    Channel::tableName() . '.status',
+                ])
+                ->where([
+                    Version::tableName() . ".app_id" => $model->app_id,
+                    Version::tableName() . '.status' => Version::STATUS_ON,
+                    Version::tableName() . ".is_del" => Version::NOT_DELETED,
+                    Channel::tableName() . ".status" => Channel::ACTIVE_STATUS,
+                    ChannelVersion::tableName() . ".channel_id" => $model->channel
+                ])
+                ->asArray()
+                ->all();
 
-        return $this->transformers();
+            // 将版本信息入 redis 并回调 getLatest 进行return
+            if ($versions) {
+                yii::$app->redis->set($redisKey, json_encode($versions));
+            } else {
+                // 不存在的 app_id & channel_id 则缓存一个模板版本信息（预防缓存穿透）
+                yii::$app->redis->set($redisKey, ChannelVersion::APP_CHANNEL_NOT_EXIST);
+            }
+            // 预防缓存雪崩让过期时间加一个随机值
+            yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE + rand(0, 60));
+
+            return $this->getLatest($model);
+        }
     }
 
     /**
      * 管理员关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOperator()
     {
@@ -178,14 +246,12 @@ class ChannelVersion extends ActiveRecord
     public function transformers($data = [])
     {
         $version_info = [
-            'code' => $data->version->code ?? 0,
-            'min_code' => $data->version->min_code ?? 0,
-            'name' => $data->version->name ?? "0.0.0",
-            'min_name' => $data->version->min_name ?? "0.0.0",
-            'type' => $data->version->type ?? 1,
-            'scope' => $data->version->scope ?? 1,
-            'desc' => $data->version->desc ?? '',
-            'url' => $data->url ?? ''
+            'code' => $data['code'] ?? 0,
+            'name' => $data['name'] ?? "0.0.0",
+            'type' => $data['type'] ?? 1,
+            'scope' => $data['scope'] ?? 1,
+            'desc' => $data['desc'] ?? '',
+            'url' => $data['url'] ?? ''
         ];
         return $version_info;
     }
@@ -204,5 +270,17 @@ class ChannelVersion extends ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * 保存以后更新缓存
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        (new ChannelVersion())->delRedisVersion(0, $this->channel_id);
     }
 }

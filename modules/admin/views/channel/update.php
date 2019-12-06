@@ -5,10 +5,9 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Channel */
 
-$this->title = 'Update Channel: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Channels', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->title = '安卓渠道创更新: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => '渠道管理', 'url' => ['index']];
+$this->params['breadcrumbs'][] = '编辑';
 ?>
 <div class="channel-update">
     <div class="box">

@@ -23,31 +23,93 @@ use yii\widgets\Pjax;
     <?= $form->field($model, 'app_id')
         ->dropdownList(App::getAppOptions(), ['prompt'=>'选择应用', "disabled" => 'disabled']); ?>
 
-    <?= $form->field($model, 'code')->textInput() ?>
-
-    <?= $form->field($model, 'min_code')->textInput() ?>
+    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台', "disabled" => 'disabled']) ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'min_name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
+    <?php
+    $html =  <<<EOF
+<a role="button" data-toggle="collapse" href="#updateTypeHelp" aria-expanded="false" aria-controls="updateTypeHelp">
+  <i class="fa fa-fw fa-question-circle"></i>
+</a>
+EOF;
+    ?>
+    <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型'])->label('更新类型' . $html) ?>
+    <div class="collapse" id="updateTypeHelp">
+        <div class="well">
+            <h4>1 一般更新</h4>
+            <p>
+                每次APP启动都会弹出更新提示，但是更新对话框可以点击关闭，然后用户可以继续使用。
 
-    <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台', "disabled" => 'disabled']) ?>
+                用户下次再次启动APP，更新对话框依然弹出来提示用户更新，用户依然可以关闭继续使用。
+            </p>
+
+            <h4>2 强制更新</h4>
+            <p>
+            顾名思义，弹出更新后就必须更新，否则无法进行任何操作，退出应用再进来依然是这样。
+            </p>
+            <h4>3 静默更新</h4>
+            <p>
+            APP检测到更新信息后，判断如果是WI-FI情况下，会在后台下载好Apk文件，下次用户再启动APP的时候会提示用户直接安装新版APP。
+
+            用户可以关闭更新提示框继续使用，但是下次再打开依然会提示用户安装新版APP。
+            </p>
+            <h4>4 可忽略更新</h4>
+            <p>
+            顾名思义，用户点击忽略后，不在对该版本进行提示，直到下一次版本更新才会重新提示版本更新。
+
+            <h4>5 静默可忽略更新</h4>
+            <p>
+            检测到新版本后先下载，下载完成之后弹更新对话框，随后逻辑同可忽略更新
+            </p>
+        </div>
+    </div>
 
     <?php
         $channels = Channel::find()->select(['id', 'name'])->where(['platform' => $model->platform])->asArray()->all();
     ?>
 
-    <?= $form->field($model, 'scope')->dropdownList(Version::SCOPE_TYPE) ?>
+    <?php
+    $html =  <<<EOF
+<a role="button" data-toggle="collapse" href="#scopeTypelHelp" aria-expanded="false" aria-controls="scopeTypelHelp">
+  <i class="fa fa-fw fa-question-circle"></i>
+</a>
+EOF;
+    ?>
+    <?= $form->field($model, 'scope')->dropdownList(Version::SCOPE_TYPE)->label("更新范围" . $html) ?>
+    <div class="collapse" id="scopeTypelHelp">
+        <div class="well">
+            <h4>1 全量更新</h4>
+            所有设备都在此次更新的范围内
+            <h4>2 白名单 （本次没有）</h4>
+            根据当前是否是白名单（可能是设备号、用户）来进行更新，因为这块逻辑不通用，所以需要后台另外写接口去查询白名单情况并作出更新
+        </div>
+    </div>
 
-    <?= $form->field($model, 'desc')->textarea(['rows' => 6]) ?>
+    <?php
+    $html =  <<<EOF
+<a type="button" data-container="body" data-toggle="popover" data-placement="right" data-content="用于向用户端展示的版本更新描述信息">
+  <i class="fa fa-fw fa-question-circle"></i>
+</a>
+EOF;
+    ?>
+    <?= $form->field($model, 'desc')->textarea(['rows' => 6])->label('版本描述' . $html) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
 
 </div>
 
+<?php
+$popoverRegister = <<<JS
+    $(function () {
+      $('[data-toggle="popover"]').popover()
+    })
+JS;
+$this->registerJs($popoverRegister);
+?>

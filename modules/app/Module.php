@@ -10,7 +10,7 @@ class Module extends \yii\base\Module
     /**
      * {@inheritdoc}
      */
-    public $controllerNamespace = 'yiiplus\appversion\modules\version\controllers';
+    public $controllerNamespace = 'yiiplus\appversion\modules\app\controllers';
 
     /**
      * {@inheritdoc}

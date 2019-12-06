@@ -16,6 +16,7 @@ namespace yiiplus\appversion\modules\admin\models;
 
 use common\models\system\AdminUser;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * Version 版本模型
@@ -64,11 +65,21 @@ class Version extends ActiveRecord
     ];
 
     /**
+     * 上架状态
+     */
+    const STATUS_ON = 1;
+
+    /**
+     * 上架状态
+     */
+    const STATUS_OFF = 2;
+
+    /**
      * 上下架状态
      */
     const STATUS_TYPE = [
-        1 => '上架',
-        2 => '下架'
+        self::STATUS_ON => '上架',
+        self::STATUS_OFF => '下架'
     ];
 
     /**
@@ -89,10 +100,10 @@ class Version extends ActiveRecord
     public function rules()
     {
         return [
-            [['app_id', 'code', 'min_code', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
-            [['app_id', 'code', 'min_code', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
+            [['app_id', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
+            [['app_id', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['desc'], 'string'],
-            [['name', 'min_name'], 'match', 'pattern'=>'/^[1-9]\d*\.[0-9]\d*\.[0-9]\d*$/', 'message'=>'格式形如为 1.1.1'],
+            [['name', 'min_name'], 'match', 'pattern'=>'/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', 'message'=>'格式形如为 999.999.999'],
             [['name', 'min_name'], 'string', 'max' => 64],
         ];
     }
@@ -116,11 +127,11 @@ class Version extends ActiveRecord
             'scope' => '发布范围',
             'desc' => '版本描述',
             'status' => '上架状态',
-            'operated_id' => '操作人 ID',
+            'operated_id' => '操作人',
             'operator' => '操作人',
             'is_del' => 'Is Del',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'created_at' => '创建时间',
+            'updated_at' => '更新时间',
             'deleted_at' => 'Deleted At',
         ];
     }
@@ -136,11 +147,11 @@ class Version extends ActiveRecord
     /**
      * 渠道关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getChannelVersions()
     {
-        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id'])->where(['is_del' => self::NOT_DELETED]);
+        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id'])->where([ChannelVersion::tableName() .'.is_del' => self::NOT_DELETED]);
     }
 
     /**
@@ -155,13 +166,29 @@ class Version extends ActiveRecord
     /**
      * 管理员关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOperator()
     {
         return $this->hasOne(AdminUser::className(), ['id' => 'operated_id']);
     }
 
+    /**
+     * 版本号转换
+     *
+     * @param $versionName
+     * @return bool|float|int
+     */
+    public function versionNameToCode($versionName)
+    {
+        $ret = preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $versionName);
+        if ($ret) {
+            list($major, $minor, $sub) = explode('.', $versionName);
+            $versionCode = 1000000000 + $major*1000000 + $minor*1000 + $sub;
+            return $versionCode;
+        }
+        return false;
+    }
     /**
      * 模型监控器
      *
@@ -171,9 +198,11 @@ class Version extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
+            $this->code = $this->versionNameToCode($this->name) ?? 0;
+            $this->min_code = $this->versionNameToCode($this->min_name) ?? 0;
             if ($this->isNewRecord) {
                 $this->operated_id = Yii::$app->user->id;
-                $this->status = 1;
+                $this->status = self::STATUS_OFF;
             } else {
                 //软删除
                 if ($this->is_del == self::ACTIVE_DELETE) {
@@ -185,5 +214,17 @@ class Version extends ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * 保存以后更新缓存
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        (new ChannelVersion())->delRedisVersion($this->app_id);
     }
 }

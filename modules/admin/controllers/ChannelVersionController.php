@@ -71,9 +71,10 @@ class ChannelVersionController extends Controller
     }
 
     /**
-     * 创建页
+     * 创建版本控制
      *
-     * @return mixed
+     * @param $version_id
+     * @return string|\yii\web\Response
      */
     public function actionCreate($version_id)
     {
@@ -98,11 +99,11 @@ class ChannelVersionController extends Controller
                     $model->url = $path;
                 } else {
                     Yii::$app->getSession()->setFlash('error', '渠道包上传失败');
-                    return $this->redirect(['index',  'version_id' => $version->id]);
+                    return $this->redirect(['index',  'ChannelVersionSearch[version_id]' => $version->id]);
                 }
             }
             $model->save();
-            return $this->redirect(['index',  'version_id' => $version->id]);
+            return $this->redirect(['index',  'ChannelVersionSearch[version_id]' => $version->id]);
         }
 
         return $this->render('create', [
@@ -129,15 +130,17 @@ class ChannelVersionController extends Controller
 
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($model->load(Yii::$app->request->post())) {
+            // 清除空的 url 值
+            unset($model->url);
+
             if ($model->version->platform == App::ANDROID && ($file = UploadedFile::getInstances($model, 'url'))) {
                 $path = Yii::$app->cos->cos_url . Yii::$app->storage->save($file[0], ChannelVersion::UPLOAD_APK_DIR);
 
                 $model->url = $path;
-
-                $model->save();
             }
-            return $this->redirect(['index',  'version_id' => $version->id]);
+            $model->save();
+            return $this->redirect(['index',  'ChannelVersionSearch[version_id]' => $version->id]);
         }
 
         return $this->render('update', [

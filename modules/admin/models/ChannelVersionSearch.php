@@ -64,8 +64,6 @@ class ChannelVersionSearch extends ChannelVersion
     {
         $query = ChannelVersion::find();
 
-        // add conditions that should always apply here
-
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -73,12 +71,9 @@ class ChannelVersionSearch extends ChannelVersion
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'version_id' => $this->version_id,

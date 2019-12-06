@@ -15,6 +15,7 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yii\web\Response;
 use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\ChannelVersion;
 use yiiplus\appversion\modules\admin\models\Version;
@@ -75,7 +76,7 @@ class VersionController extends Controller
      *
      * @param $app_id
      * @param $platform
-     * @return string|\yii\web\Response
+     * @return string|Response
      */
     public function actionCreate($app_id = false, $platform = false)
     {
@@ -100,7 +101,7 @@ class VersionController extends Controller
      * 版本更新
      *
      * @param $id
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
@@ -120,30 +121,26 @@ class VersionController extends Controller
      * 废弃与启用
      *
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionStatusToggle($id)
     {
-
         $model = $this->findModel($id);
-
         $model->status = ($model->status != 1) ? 1 : 2;
-
         $model->save();
 
         Yii::$app->getSession()->setFlash('success', '操作成功');
         return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
     }
 
+
     /**
-     * 版本删除
+     * 删除
      *
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {

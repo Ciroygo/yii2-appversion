@@ -15,6 +15,7 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yii\web\Response;
 use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\Channel;
 use yiiplus\appversion\modules\admin\models\ChannelSearch;
@@ -71,7 +72,7 @@ class ChannelController extends Controller
     /**
      * 渠道创建
      *
-     * @return string|\yii\web\Response
+     * @return string|Response
      */
     public function actionCreate()
     {
@@ -91,7 +92,7 @@ class ChannelController extends Controller
      * 渠道添加
      *
      * @param $id
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
@@ -109,10 +110,10 @@ class ChannelController extends Controller
     }
 
     /**
-     * 废弃与启用
+     * 废弃与启用 status 1正常 2废弃
      *
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionStatusToggle($id)
@@ -127,14 +128,13 @@ class ChannelController extends Controller
         return $this->redirect('index');
     }
 
+
     /**
-     * 渠道删除
+     * 删除
      *
      * @param $id
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {

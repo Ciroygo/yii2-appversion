@@ -1,14 +1,15 @@
 <?php
 
-use yii\helpers\Html;
 use yii\bootstrap\Alert;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\ChannelVersion */
 
 $this->title = '渠道关联';
-$this->params['breadcrumbs'][] = ['label' => 'Channel Versions', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
+$this->params['breadcrumbs'][] = ['label' => '应用管理', 'url' => ['app/index']];
+$this->params['breadcrumbs'][] = ['label' => '版本管理', 'url' => ['version/index', "VersionSearch[app_id]" => $version->app_id, "VersionSearch[platform]" => $version->platform]];
+$this->params['breadcrumbs'][] = ['label' => '渠道关联管理', 'url' => ['index', 'ChannelVersionSearch[version_id]' => $model->version_id]];
+$this->params['breadcrumbs'][] = '渠道关联创建';
 ?>
 
 <?php

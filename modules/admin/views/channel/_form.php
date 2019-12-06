@@ -2,7 +2,6 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yiiplus\appversion\modules\admin\models\App;
 
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Channel */
@@ -15,12 +14,10 @@ use yiiplus\appversion\modules\admin\models\App;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'platform')->dropdownList([App::ANDROID => App::PLATFORM_OPTIONS[App::ANDROID]]) ?>
-
     <?= $form->field($model, 'code')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

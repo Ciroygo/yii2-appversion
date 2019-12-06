@@ -8,7 +8,9 @@ use yii\bootstrap\Alert;
 /* @var $searchModel yiiplus\appversion\modules\admin\models\ChannelVersionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = '版本渠道管理';
+$this->title = '渠道关联管理';
+$this->params['breadcrumbs'][] = ['label' => '应用管理', 'url' => ['app/index']];
+$this->params['breadcrumbs'][] = ['label' => '版本管理', 'url' => ['version/index', "VersionSearch[app_id]" => $searchModel->version->app_id, "VersionSearch[platform]" => $searchModel->version->platform]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -33,7 +35,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
         <div class="btn-group pull-right grid-create-btn" style="margin-right: 10px">
             <?= Html::a(
                 '<i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;新增',
-                ['create', 'version_id' => Yii::$app->request->getQueryParam('version_id')],
+                ['create', 'version_id' => $searchModel->version_id],
                 ['class' => 'btn btn-sm btn-success']
             ) ?>
         </div>
@@ -80,8 +82,8 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'class' => 'yii\grid\ActionColumn',
                                 'template' => '{update} {delete}',
                                 'buttons' => [
-                                    'update' => function ($url, $model, $key) {
-                                        $url .= "&version_id=" . Yii::$app->request->getQueryParam('version_id');
+                                    'update' => function ($url, $model, $key) use ($searchModel) {
+                                        $url .= "&version_id=" . $searchModel->version_id;
                                         return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                     'delete' => function ($url, $model, $key) {

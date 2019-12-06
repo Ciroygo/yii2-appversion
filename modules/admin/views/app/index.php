@@ -20,7 +20,7 @@ use yii\bootstrap\Alert;
 /* @var $searchModel yiiplus\appversion\modules\admin\models\AppSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Apps 管理';
+$this->title = '应用管理';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

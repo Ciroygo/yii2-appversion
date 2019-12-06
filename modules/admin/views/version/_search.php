@@ -31,12 +31,6 @@ use yiiplus\appversion\modules\admin\models\Version;
             <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型']) ?>
         </div>
         <div class="col-sm-3">
-            <?= $form->field($model, 'code') ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $form->field($model, 'min_code') ?>
-        </div>
-        <div class="col-sm-3">
             <?= $form->field($model, 'name') ?>
         </div>
         <div class="col-sm-3">
@@ -44,34 +38,9 @@ use yiiplus\appversion\modules\admin\models\Version;
         </div>
     </div>
 
-
-
-
-    <?php // echo $form->field($model, 'min_name') ?>
-
-    <?php // echo $form->field($model, 'type') ?>
-
-    <?php // echo $form->field($model, 'platform') ?>
-
-    <?php // echo $form->field($model, 'scope') ?>
-
-    <?php // echo $form->field($model, 'desc') ?>
-
-    <?php // echo $form->field($model, 'status') ?>
-
-    <?php // echo $form->field($model, 'operated_id') ?>
-
-    <?php // echo $form->field($model, 'is_del') ?>
-
-    <?php // echo $form->field($model, 'created_at') ?>
-
-    <?php // echo $form->field($model, 'updated_at') ?>
-
-    <?php // echo $form->field($model, 'deleted_at') ?>
-
     <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-default']) ?>
+        <?= Html::submitButton('搜索', ['class' => 'btn btn-primary']) ?>
+        <?= Html::resetButton('重置', ['class' => 'btn btn-default']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

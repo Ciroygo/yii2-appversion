@@ -51,7 +51,6 @@ class AppSearch extends App
      */
     public function scenarios()
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
@@ -66,8 +65,6 @@ class AppSearch extends App
     {
         $query = App::find();
 
-        // add conditions that should always apply here
-
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -75,17 +72,12 @@ class AppSearch extends App
             ],
         ]);
 
-//        $query->where([self::tableName() . '.is_del' => self::NOT_DELETED]);
-
         $this->load($params, null);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'operated_id' => $this->operated_id,

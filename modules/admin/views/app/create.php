@@ -1,12 +1,10 @@
 <?php
 
-use yii\helpers\Html;
-
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\App */
 
-$this->title = 'Create App';
-$this->params['breadcrumbs'][] = ['label' => 'Apps', 'url' => ['index']];
+$this->title = '创建应用';
+$this->params['breadcrumbs'][] = ['label' => '应用列表', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="app-create">

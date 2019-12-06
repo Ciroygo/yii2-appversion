@@ -2,14 +2,15 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\widgets\Pjax;
 use yii\bootstrap\Alert;
+use yiiplus\appversion\modules\admin\models\Version;
 
 /* @var $this yii\web\View */
 /* @var $searchModel yiiplus\appversion\modules\admin\models\VersionSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = '版本管理';
+$this->params['breadcrumbs'][] = ['label' => '应用管理', 'url' => ['app/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
@@ -60,10 +61,10 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                     'dataProvider' => $dataProvider,
                     'columns' => [
                         ['class' => 'yii\grid\SerialColumn'],
-                        // 'id',
-                        'app_id',
+
+
                         [
-                            'attribute'=>'app_name',
+                            'attribute'=>'app_id',
                             'value' => function ($model) {
                                 return $model->app->name ?? null;
                             }
@@ -75,7 +76,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         [
                             'attribute'=>'type',
                             'value' => function ($model) {
-                                return \yiiplus\appversion\modules\admin\models\Version::SCOPE_TYPE[$model->type] ?? null;
+                                return \yiiplus\appversion\modules\admin\models\Version::UPDATE_TYPE[$model->type] ?? null;
                             }
                         ],
                         [
@@ -108,14 +109,14 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             'template' => '{status-toggle} {channel/index} {update} {delete}',
                             'buttons' => [
                                 'status-toggle' => function ($url, $model, $key) {
-                                    if ($model->status == 1) {
+                                    if ($model->status == Version::STATUS_ON) {
                                         return Html::a('下架', $url, ['class' => 'btn btn-xs btn-success']);
                                     } else {
                                         return Html::a('上架', $url, ['class' => 'btn btn-xs btn-warning']);
                                     }
                                 },
                                 'channel/index' => function ($url, $model, $key) {
-                                    $url = "/appversion/channel-version?version_id=$model->id";
+                                    $url = "/appversion/channel-version?ChannelVersionSearch%5Bversion_id%5D=$model->id";
                                     return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
                                 },
                                 'update' => function ($url, $model, $key) {

@@ -16,6 +16,7 @@ namespace yiiplus\appversion\modules\admin\models;
 
 use common\models\system\AdminUser;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * App 模型基类
@@ -74,6 +75,7 @@ class App extends ActiveRecord
     public function rules()
     {
         return [
+            ['application_id', 'unique'],
             [['name', 'application_id'], 'required'],
             [['is_del', 'created_at', 'updated_at', 'deleted_at', 'operated_id'], 'integer'],
             [['name'], 'string', 'max' => 64],
@@ -91,12 +93,12 @@ class App extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'name' => '应用名',
-            'application_id' => '应用 ID',
-            'operated_id' => '操作人 ID',
+            'name' => '应用名称',
+            'application_id' => '应用KEY',
+            'operated_id' => '操作人',
             'operator' => '操作人',
             'is_del' => 'Is Del',
-            'created_at' => 'Created At',
+            'created_at' => '创建时间',
             'updated_at' => 'Updated At',
             'deleted_at' => 'Deleted At',
         ];
@@ -116,7 +118,7 @@ class App extends ActiveRecord
     /**
      * 版本关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getVersions()
     {
@@ -126,7 +128,7 @@ class App extends ActiveRecord
     /**
      * 管理员关联
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getOperator()
     {
@@ -156,5 +158,17 @@ class App extends ActiveRecord
         } else {
             return false;
         }
+    }
+
+    /**
+     * 保存后操作
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        (new ChannelVersion())->delRedisVersion($this->id);
     }
 }

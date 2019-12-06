@@ -5,10 +5,9 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\App */
 
-$this->title = 'Update App: ' . $model->name;
-$this->params['breadcrumbs'][] = ['label' => 'Apps', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
+$this->title = '应用更新: ' . $model->name;
+$this->params['breadcrumbs'][] = ['label' => '应用列表', 'url' => ['index']];
+$this->params['breadcrumbs'][] = '编辑';
 ?>
 <div class="app-update">
 
