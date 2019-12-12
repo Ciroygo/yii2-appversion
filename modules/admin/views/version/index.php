@@ -4,6 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\bootstrap\Alert;
 use yiiplus\appversion\modules\admin\models\Version;
+use yiiplus\appversion\modules\admin\models\App;
 
 /* @var $this yii\web\View */
 /* @var $searchModel yiiplus\appversion\modules\admin\models\VersionSearch */
@@ -61,8 +62,6 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                     'dataProvider' => $dataProvider,
                     'columns' => [
                         ['class' => 'yii\grid\SerialColumn'],
-
-
                         [
                             'attribute'=>'app_id',
                             'value' => function ($model) {
@@ -74,28 +73,29 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                         [
                             'attribute'=>'type',
                             'value' => function ($model) {
-                                return \yiiplus\appversion\modules\admin\models\Version::UPDATE_TYPE[$model->type] ?? null;
+                                return Version::UPDATE_TYPE[$model->type] ?? null;
                             }
                         ],
                         [
                             'attribute'=>'platform',
                             'value' => function ($model) {
-                                return \yiiplus\appversion\modules\admin\models\App::PLATFORM_OPTIONS[$model->platform] ?? null;
+                                return App::PLATFORM_OPTIONS[$model->platform] ?? null;
                             }
                         ],
                         [
                             'attribute'=>'scope',
                             'value' => function ($model) {
-                                return \yiiplus\appversion\modules\admin\models\Version::SCOPE_TYPE[$model->scope] ?? null;
+                                return Version::SCOPE_TYPE[$model->scope] ?? null;
                             }
                         ],
                         'desc:text',
                         [
                             'attribute'=>'status',
                             'value' => function ($model) {
-                                return \yiiplus\appversion\modules\admin\models\Version::STATUS_TYPE[$model->status] . "中" ?? null;
+                                return Version::STATUS_TYPE[$model->status] . "中" ?? null;
                             }
                         ],
+                        'comment:text',
                         [
                             'attribute'=>'operated_id',
                             'value' => function ($model) {

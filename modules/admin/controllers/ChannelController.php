@@ -16,7 +16,6 @@ namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
 use yii\web\Response;
-use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\Channel;
 use yiiplus\appversion\modules\admin\models\ChannelSearch;
 use yii\web\Controller;
@@ -139,8 +138,9 @@ class ChannelController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->is_del = Channel::ACTIVE_DELETE;
             $model->save();
+            Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
         return $this->redirect(['index']);
     }

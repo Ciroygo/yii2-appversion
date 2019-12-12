@@ -39,6 +39,7 @@ EOF;
     <?= $form->field($model, 'type')->dropDownList(Version::UPDATE_TYPE, ['prompt'=>'选择更新类型'])->label('更新类型' . $html) ?>
     <div class="collapse" id="updateTypeHelp">
         <div class="well">
+            <div class="alert bg-info" role="alert">对于 iOS AppStore 的更新来说：静默更新、可忽略更新、静默可忽略更新都只弹一次提示更新的对话框</div>
             <h4>1 一般更新</h4>
             <p>
                 每次APP启动都会弹出更新提示，但是更新对话框可以点击关闭，然后用户可以继续使用。
@@ -83,8 +84,8 @@ EOF;
         <div class="well">
             <h4>1 全量更新</h4>
             所有设备都在此次更新的范围内
-            <h4>2 白名单 （本次没有）</h4>
-            根据当前是否是白名单（可能是设备号、用户）来进行更新，因为这块逻辑不通用，所以需要后台另外写接口去查询白名单情况并作出更新
+            <h4>2 IP白名单</h4>
+            根据 APP 管理里面设定的 IP 地址来进行更新，符合 IP白名单的，则会传递更新信息
         </div>
     </div>
 
@@ -96,6 +97,15 @@ EOF;
 EOF;
     ?>
     <?= $form->field($model, 'desc')->textarea(['rows' => 6])->label('版本描述' . $html) ?>
+
+    <?php
+    $html =  <<<EOF
+<a type="button" data-container="body" data-toggle="popover" data-placement="right" data-content="用于给自己查看的信息">
+  <i class="fa fa-fw fa-question-circle"></i>
+</a>
+EOF;
+    ?>
+    <?= $form->field($model, 'comment')->label('备注信息' . $html) ?>
 
     <div class="form-group">
         <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>

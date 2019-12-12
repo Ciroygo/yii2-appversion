@@ -36,6 +36,7 @@ use yii\db\ActiveQuery;
  * @property int $platform 平台 1 iOS 2 安卓
  * @property int $scope 发布范围（1 全量、2 白名单、3 ip发布）
  * @property string $desc 版本描述 最长字符
+ * @property string $comment 备注 最长字符
  * @property int $status 发布范围（1 全量、2 白名单、3 ip发布）
  * @property int $operated_id 用户id
  * @property int $is_del 状态；0正常；1主动删除；2后台删除
@@ -60,9 +61,19 @@ class Version extends ActiveRecord
      * 更新范围
      */
     const SCOPE_TYPE = [
-        1 => '全量更新',
-        2 => 'IP白名单'
+        self::SCOPE_ALL => '全量更新',
+        self::SCOPE_IP => 'IP白名单'
     ];
+
+    /**
+     * 更新范围 全量更新
+     */
+    const SCOPE_ALL = 1;
+
+    /**
+     * 更新范围 IP白名单
+     */
+    const SCOPE_IP = 2;
 
     /**
      * 上架状态
@@ -102,7 +113,7 @@ class Version extends ActiveRecord
         return [
             [['app_id', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
             [['app_id', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
-            [['desc'], 'string'],
+            [['desc', 'comment'], 'string'],
             [['name', 'min_name'], 'match', 'pattern'=>'/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', 'message'=>'格式形如为 999.999.999'],
             [['name', 'min_name'], 'string', 'max' => 64],
         ];
@@ -124,6 +135,7 @@ class Version extends ActiveRecord
             'platform' => '平台',
             'scope' => '发布范围',
             'desc' => '版本描述',
+            'comment' => '备注',
             'status' => '上架状态',
             'operated_id' => '操作人',
             'operator' => '操作人',

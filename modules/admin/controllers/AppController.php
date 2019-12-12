@@ -16,7 +16,6 @@ namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
 use yii\web\Response;
-use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\AppSearch;
 use yii\web\Controller;
@@ -77,6 +76,7 @@ class AppController extends Controller
     {
         $model = new App();
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index']);
         }
 
@@ -97,6 +97,7 @@ class AppController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index']);
         }
 
@@ -116,8 +117,9 @@ class AppController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->is_del = App::ACTIVE_DELETE;
             $model->save();
+            Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
 
         return $this->redirect(Yii::$app->request->referrer);

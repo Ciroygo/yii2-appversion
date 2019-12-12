@@ -197,8 +197,24 @@ class ChannelVersion extends ActiveRecord
                     array_multisort(array_column($versions, 'name'), SORT_DESC, $versions);
                     foreach ($versions as $version) {
                         if (Version::versionNameToCode($model->name) >= Version::versionNameToCode($version['min_name']) ?? 0) {
-                            $version['is_update'] = true;
-                            return $this->transformers($version);
+                            switch ($version['scope']) {
+                                case Version::SCOPE_ALL:
+                                    $version['is_update'] = true;
+                                    return $this->transformers($version);
+                                    break;
+                                case Version::SCOPE_IP:
+                                    if (App::scopeIpStatus($model->app_id)) {
+                                        $version['is_update'] = true;
+                                        return $this->transformers($version);
+                                    } else {
+                                        // 不在 ip 更新范围内
+                                        return $this->transformers();
+                                    }
+                                    break;
+                                default:
+                                    $version['is_update'] = true;
+                                    return $this->transformers($version);
+                            }
                         }
                     }
                 }

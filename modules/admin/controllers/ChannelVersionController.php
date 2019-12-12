@@ -15,7 +15,6 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use yii\web\UploadedFile;
-use yiiplus\appversion\modules\admin\models\ActiveRecord;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\Version;
 use Yii;
@@ -103,6 +102,7 @@ class ChannelVersionController extends Controller
                 }
             }
             $model->save();
+            Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index',  'ChannelVersionSearch[version_id]' => $version->id]);
         }
 
@@ -140,6 +140,7 @@ class ChannelVersionController extends Controller
                 $model->url = $path;
             }
             $model->save();
+            Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index',  'ChannelVersionSearch[version_id]' => $version->id]);
         }
 
@@ -159,8 +160,9 @@ class ChannelVersionController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = ActiveRecord::ACTIVE_DELETE;
+            $model->is_del = ChannelVersion::ACTIVE_DELETE;
             $model->save();
+            Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
 
         return $this->redirect(Yii::$app->request->referrer);
