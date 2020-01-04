@@ -96,6 +96,12 @@ class ChannelController extends Controller
      */
     public function actionUpdate($id)
     {
+        // 不允许修改官方渠道
+        if ($id == Channel::IOS_OFFICIAL || $id == Channel::ANDROID_OFFICIAL) {
+            Yii::$app->getSession()->setFlash('error', '不能修改官方渠道' . $id);
+            return $this->redirect('index');
+        }
+
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {

@@ -22,20 +22,13 @@ use yiiplus\appversion\modules\admin\models\Channel;
     <?= $form->field($model->version, 'platform')->dropDownList(App::PLATFORM_OPTIONS, ["disabled" => 'disabled']) ?>
 
     <?php
-    if ($model->channel_id) {
-        $getOptions = false;
-    } else {
-        $getOptions = $version;
-    }
-    ?>
-    <?php
     $html =  <<<EOF
 <a role="button" data-toggle="collapse" href="#channelHelp" aria-expanded="false" aria-controls="channelHelp">
   <i class="fa fa-fw fa-question-circle"></i>
 </a>
 EOF;
     ?>
-    <?= $form->field($model, 'channel_id')->dropdownList(Channel::getChannelOptions($version->platform, $getOptions ?? false))->label("渠道选择" . $html); ?>
+    <?= $form->field($model, 'channel_id')->dropdownList(Channel::getChannelOptions($version, $model->channel_id))->label("渠道选择" . $html); ?>
     <div class="collapse" id="channelHelp">
         <div class="well">
             <h4>1 IOS</h4>

@@ -262,7 +262,7 @@ class App extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->delRedisVersion($this->id);
+        (new ChannelVersion())->unsetRedisVersion($this->id);
         $this->delRedisAppScopeIps($this->id);
     }
 }

@@ -30,6 +30,8 @@ use yii\db\ActiveQuery;
  *
  * @property int $id 主键id
  * @property int $app_id 应用关联id
+ * @property int $code 版本号 格式 1001001001
+ * @property int $min_code 版本号 格式 1001001001
  * @property string $name 版本号 格式 1.1.1
  * @property string $min_name 最小版本号 格式 1.1.1
  * @property int $type 更新类型 1 一般更新 2 强制更新 3 静默更新 4 可忽略更新 5 静默可忽略更新
@@ -86,6 +88,11 @@ class Version extends ActiveRecord
     const STATUS_OFF = 2;
 
     /**
+     * 上架状态
+     */
+    const ALLOW_UPDATE = true;
+
+    /**
      * 上下架状态
      */
     const STATUS_TYPE = [
@@ -111,6 +118,7 @@ class Version extends ActiveRecord
     public function rules()
     {
         return [
+            ['name', 'unique', 'targetAttribute' => ['app_id', 'platform', 'name', 'deleted_at'], 'message' => '该应用版本已经创建了！'],
             [['app_id', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
             [['app_id', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['desc', 'comment'], 'string'],
@@ -161,7 +169,7 @@ class Version extends ActiveRecord
      */
     public function getChannelVersions()
     {
-        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id'])->where([ChannelVersion::tableName() .'.is_del' => self::NOT_DELETED]);
+        return $this->hasMany(ChannelVersion::className(), ['version_id' => 'id']);
     }
 
     /**
@@ -215,6 +223,7 @@ class Version extends ActiveRecord
             } else {
                 //软删除
                 if ($this->is_del == self::ACTIVE_DELETE) {
+                    $this->deleted_at = time();
                     ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['version_id' => $this->id]);
                 }
                 $this->operated_id = Yii::$app->user->id;
@@ -234,6 +243,6 @@ class Version extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->delRedisVersion($this->app_id);
+        (new ChannelVersion())->unsetRedisVersion($this->app_id);
     }
 }

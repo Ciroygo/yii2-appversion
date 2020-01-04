@@ -91,6 +91,9 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 'template' => '{update} {status-toggle} {delete}',
                                 'buttons' => [
                                     'update' => function ($url, $model, $key) {
+                                        if (($model->id == Channel::IOS_OFFICIAL) || ($model->id == Channel::ANDROID_OFFICIAL)) {
+                                            return '';
+                                        }
                                         return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                     'status-toggle' => function ($url, $model, $key) {
@@ -101,6 +104,9 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                         }
                                     },
                                     'delete' => function ($url, $model, $key) {
+                                        if (($model->id == Channel::IOS_OFFICIAL) || ($model->id == Channel::ANDROID_OFFICIAL)) {
+                                            return '';
+                                        }
                                         return Html::a(
                                             '删除',
                                             $url,

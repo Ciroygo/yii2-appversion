@@ -69,10 +69,6 @@ EOF;
     </div>
 
     <?php
-        $channels = Channel::find()->select(['id', 'name'])->where(['platform' => $model->platform])->asArray()->all();
-    ?>
-
-    <?php
     $html =  <<<EOF
 <a role="button" data-toggle="collapse" href="#scopeTypelHelp" aria-expanded="false" aria-controls="scopeTypelHelp">
   <i class="fa fa-fw fa-question-circle"></i>

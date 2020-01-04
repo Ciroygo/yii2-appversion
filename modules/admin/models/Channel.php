@@ -145,23 +145,40 @@ class Channel extends ActiveRecord
     /**
      * 前端下拉选项获取
      *
-     * @param $platform
-     * @param bool $version
+     * @param bool|object $version
+     * @param integer $channelId
      * @return array|false
      */
-    public static function getChannelOptions($platform, $version = false)
+    public static function getChannelOptions($version, $channelId = 0)
     {
-        $query = self::find()->select(['id', 'name'])->where(['platform' => $platform])->andWhere(['status' => 1])->andWhere(['is_del' => self::NOT_DELETED]);
-
-        // 已经新增的渠道不显示在下拉框中
+        $existChannels = [];
         if ($version) {
-            $exists_channels = $version->getChannels()->select(['id'])->column();
-            if (!empty($exists_channels)) {
-                $query->andWhere(['not in', 'id', $exists_channels]);
-            }
+            // 已经存在的渠道
+            $existChannels = $version->getChannelVersions()
+                ->select('channel_id')
+                ->where([
+                    'is_del' => self::NOT_DELETED,
+                    'version_id' => $version->id,
+                ])
+                ->asArray()
+                ->column();
         }
-        $channels = $query->asArray()->all();
-        return array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
+        if ($channelId) {
+            $existChannels = array_diff($existChannels, [$channelId]);
+        }
+        $channels = self::find()->select(['id', 'name'])
+            ->where(['platform' => $version->platform])
+            ->andWhere(['status' => Channel::ACTIVE_STATUS])
+            ->andWhere(['is_del' => self::NOT_DELETED])
+            ->asArray()->all();
+
+        $channels = array_combine(array_column($channels, 'id'), array_column($channels, 'name'));
+
+        $existChannels = array_flip($existChannels);
+
+        $options = array_diff_key($channels, $existChannels);
+
+        return $options;
     }
 
     /**
@@ -196,6 +213,15 @@ class Channel extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->delRedisVersion(0, $this->id);
+
+        // 如果更新的是安卓官方渠道，需要更新所有渠道，因为其他渠道有肯能返回的是官方包
+        if ($this->id == Channel::ANDROID_OFFICIAL) {
+            $apps = App::find()->where(['is_del' => App::NOT_DELETED])->all();
+            foreach ($apps as $app) {
+                (new ChannelVersion())->unsetRedisVersion($app->id);
+            }
+        } else {
+            (new ChannelVersion())->unsetRedisVersion(0, $this->id);
+        }
     }
 }

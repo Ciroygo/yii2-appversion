@@ -48,12 +48,12 @@ class ChannelVersion extends ActiveRecord
     /**
      * redis 根据 app_id 和 channel_id 保存版本信息
      */
-    const REDIS_APP_CHANNEL_VERSIONS = 'app_%s_channel_%s_versions';
+    const REDIS_APP_VERSION = 'app_%s_platform_%s_channel_%s';
 
     /**
      * 版本缓存过期时间
      */
-    const REDIS_APP_CHANNEL_VERSIONS_EXPIRE = 60 * 60;
+    const REDIS_APP_CHANNEL_VERSIONS_EXPIRE = 12 * 60 * 60;
 
     /**
      * APP 或者版本信息不存在
@@ -83,6 +83,7 @@ class ChannelVersion extends ActiveRecord
     public function rules()
     {
         return [
+            [['version_id', 'channel_id'], 'unique', 'targetAttribute' => ['version_id', 'channel_id', 'deleted_at']],
             [['version_id', 'channel_id'], 'required'],
             [['version_id', 'channel_id', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['url'], 'string', 'max' => 255],
@@ -131,135 +132,177 @@ class ChannelVersion extends ActiveRecord
     }
 
     /**
-     * 删除 app 版本控制缓存
-     *
-     * @param int $appId 应用id
-     * @param int $channelId 渠道id
-     * @return bool
-     */
-    public function delRedisVersion(int $appId = 0, int $channelId = 0)
-    {
-        if ($appId && $channelId) {
-            $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $appId, $channelId);
-            yii::$app->redis->del($redisKey);
-            return true;
-        }
-        if (!$channelId) {
-            $channels = Channel::findAll(['is_del' => Channel::NOT_DELETED, 'status' => Channel::ACTIVE_STATUS]);
-            if (!empty($channels)) {
-                foreach ($channels as $channel) {
-                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $appId, $channel->id);
-                    yii::$app->redis->del($redisKey);
-                }
-            }
-            return true;
-        }
-        if (!$appId) {
-            $apps = App::findAll(['is_del' => App::NOT_DELETED]);
-            if (!empty($apps)) {
-                foreach ($apps as $app) {
-                    $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $app->id, $channelId);
-                    yii::$app->redis->del($redisKey);
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 获得最新的版本信息
+     * 根据版本获取最新的版本信息
      *
      * @param $model
      * @return array
      */
     public function getLatest($model)
     {
+        // 条件：app_id、platform、channel、name
         // 查询缓存
-        $redisKey = sprintf(ChannelVersion::REDIS_APP_CHANNEL_VERSIONS, $model->app_id, $model->channel);
+        $redisKey = sprintf(ChannelVersion::REDIS_APP_VERSION, $model->app_id, $model->platform, $model->channel);
+        $version = Yii::$app->redis->hget($redisKey, $model->name);
 
-        $result = yii::$app->redis->get($redisKey);
+        if ($version == ChannelVersion::APP_VERSION_NOT_EXIST) {
+            return $this->transformers();
+        }
 
-        // 查询到缓存则寻找匹配版本信息进行返回
-        if ($result) {
-            // 安卓如果渠道不存在则调用官方包更新
-            if ($result == ChannelVersion::CHANNEL_NOT_EXIST) {
-                $model->channel = Channel::ANDROID_OFFICIAL;
-                return $this->getLatest($model);
+        // 缓存中输出结果
+        if ($version) {
+            $version = json_decode($version, true);
+            return $this->getVersionData($version);
+        }
+
+        // 查询数据库
+        $versions = $this->getVersions($model);
+
+        // 如果是安卓，且没有当前的版本信息，调用官方包
+        if (!$versions && $model->platform == App::ANDROID) {
+            $model->channel = Channel::ANDROID_OFFICIAL;
+            $versions = $this->getVersions($model);
+        }
+
+        // 比较版本，得出设备 version_name 的结果
+        array_multisort(array_column($versions, 'name'), SORT_DESC, $versions);
+        foreach ($versions as $v) {
+            if (Version::versionNameToCode($model->name) >= Version::versionNameToCode($version['min_name']) ?? 0) {
+                yii::$app->redis->hset($redisKey, $model->name, json_encode($v));
+                yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE);
+                return $this->getVersionData($v);
             }
+        }
 
-            if ($result != ChannelVersion::APP_VERSION_NOT_EXIST && ($versions = json_decode($result, true))) {
-                // 按照版本号排序并比较出最新的版本
-                $versions = array_filter($versions, function ($val) use ($model) {
-                    return ($val['platform'] == $model->platform);
-                });
-                if (!empty($versions)) {
-                    array_multisort(array_column($versions, 'name'), SORT_DESC, $versions);
-                    foreach ($versions as $version) {
-                        if (Version::versionNameToCode($model->name) >= Version::versionNameToCode($version['min_name']) ?? 0) {
-                            switch ($version['scope']) {
-                                case Version::SCOPE_ALL:
-                                    $version['is_update'] = true;
-                                    return $this->transformers($version);
-                                    break;
-                                case Version::SCOPE_IP:
-                                    if (App::scopeIpStatus($model->app_id)) {
-                                        $version['is_update'] = true;
-                                        return $this->transformers($version);
-                                    } else {
-                                        // 不在 ip 更新范围内
-                                        return $this->transformers();
-                                    }
-                                    break;
-                                default:
-                                    $version['is_update'] = true;
-                                    return $this->transformers($version);
-                            }
-                        }
+        // 没有合适的结果则存入-1，避免缓存穿透问题
+        yii::$app->redis->hset($redisKey, $model->name, ChannelVersion::APP_VERSION_NOT_EXIST);
+        yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE);
+        return  $this->transformers();
+    }
+
+    /**
+     * 查询数据库
+     *
+     * @param $model
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getVersions($model)
+    {
+        // 查询数据库
+        return Version::find()
+            ->joinWith(['channelVersions', 'channels'], false)
+            ->select([
+                Version::tableName() . '.*',
+                ChannelVersion::tableName() . '.channel_id',
+                ChannelVersion::tableName() . '.version_id',
+                ChannelVersion::tableName() . '.url',
+                Channel::tableName() . '.status',
+            ])
+            ->where([
+                Version::tableName() . ".app_id" => $model->app_id,
+                Version::tableName() . ".platform" => $model->platform,
+                Version::tableName() . '.status' => Version::STATUS_ON,
+                Version::tableName() . ".is_del" => Version::NOT_DELETED,
+                Channel::tableName() . ".status" => Channel::ACTIVE_STATUS,
+                Channel::tableName() . ".is_del" => Channel::NOT_DELETED,
+                ChannelVersion::tableName() . ".channel_id" => $model->channel,
+                ChannelVersion::tableName() . ".is_del" => ChannelVersion::NOT_DELETED
+            ])
+            ->asArray()
+            ->all();
+    }
+
+    /**
+     * 组装数据
+     *
+     * @param $version
+     * @return array
+     */
+    public function getVersionData($version)
+    {
+        // 更新范围：ip白名单、全量
+        switch ($version['scope']) {
+            case Version::SCOPE_ALL:
+                $version['is_update'] = Version::ALLOW_UPDATE;
+                return $this->transformers($version);
+                break;
+            case Version::SCOPE_IP:
+                if ((new App)->scopeIpStatus($version['app_id'])) {
+                    $version['is_update'] = Version::ALLOW_UPDATE;
+                    return $this->transformers($version);
+                } else {
+                    // 不在 ip 更新范围内
+                    return $this->transformers();
+                }
+                break;
+            default:
+                $version['is_update'] = Version::ALLOW_UPDATE;
+                return $this->transformers($version);
+        }
+    }
+
+    /**
+     * 清除该应用和渠道对应的版本
+     *
+     * @param $appId
+     * @param $channelId
+     * @param $version
+     */
+    public function unsetRedisVersion($appId = 0, $channelId = 0, $version = '')
+    {
+        // 删除某个app 某个渠道
+        if ($appId && $channelId) {
+            if ($channelId == Channel::IOS_OFFICIAL) {
+                $redisKeyToIos = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::IOS, $channelId);
+                yii::$app->redis->del($redisKeyToIos);
+            } else {
+                $redisKeyToAndroid = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::ANDROID, $channelId);
+                yii::$app->redis->del($redisKeyToAndroid);
+            }
+        }
+
+        // 删除该应用所有 appId
+        if ($appId && !$channelId) {
+            $app = App::findOne($appId);
+            $versions = $app->getVersions()->with('channels')->all();
+            foreach ($versions as $version) {
+                $channels = $version->channels;
+                foreach ($channels as $channel) {
+                    if ($channel->id == Channel::IOS_OFFICIAL) {
+                        $redisKeyToIos = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::IOS, $channel->id);
+                        yii::$app->redis->del($redisKeyToIos);
+                    } else {
+                        $redisKeyToAndroid = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::ANDROID, $channel->id);
+                        yii::$app->redis->del($redisKeyToAndroid);
                     }
                 }
             }
-            // 不存在或者没有版本信息给出基本返回模板
-            return $this->transformers();
-        } else {
-            // 查询不到缓存则查数据库
-            // 根据 app_id 和 channel_id 用 Version joinWith ChannelVersion 查出对应应用与渠道所有版本信息
-            $versions = Version::find()
-                ->joinWith(['channelVersions', 'channels'], false)
-                ->select([
-                    Version::tableName() . '.*',
-                    ChannelVersion::tableName() . '.channel_id',
-                    ChannelVersion::tableName() . '.version_id',
-                    ChannelVersion::tableName() . '.url',
-                    Channel::tableName() . '.status',
-                ])
-                ->where([
-                    Version::tableName() . ".app_id" => $model->app_id,
-                    Version::tableName() . '.status' => Version::STATUS_ON,
-                    Version::tableName() . ".is_del" => Version::NOT_DELETED,
-                    Channel::tableName() . ".status" => Channel::ACTIVE_STATUS,
-                    ChannelVersion::tableName() . ".channel_id" => $model->channel
-                ])
-                ->asArray()
-                ->all();
+        }
 
-            // 将版本信息入 redis 并回调 getLatest 进行return
-            if ($versions) {
-                yii::$app->redis->set($redisKey, json_encode($versions));
-            } elseif (($model->platform == App::ANDROID)
-                && ($model->channel != Channel::ANDROID_OFFICIAL)
-                && App::findOne(['is_del' => App::NOT_DELETED, 'id' => $model->app_id])
-                && !Channel::findOne(['is_del' => Channel::NOT_DELETED, 'id' => $model->channel, 'status' => Channel::ACTIVE_STATUS])) {
-                // 如果是 Android 请求的不是官方包 存在 app 但不存在 channel 的，调用官方包下载
-                yii::$app->redis->set($redisKey, ChannelVersion::CHANNEL_NOT_EXIST);
-            } else {
-                // 不存在的 app_id & channel_id 则缓存一个模板版本信息（预防缓存穿透）
-                yii::$app->redis->set($redisKey, ChannelVersion::APP_VERSION_NOT_EXIST);
+        // 删除该渠道所有 channelId
+        if (!$appId && $channelId) {
+            $channel = Channel::findOne($channelId);
+            $versions = $channel->getVersions()->with('channelVersions')->where(['is_del' => Version::NOT_DELETED])->all();
+            foreach ($versions as $version) {
+                $app = $version->app;
+                if ($channelId == Channel::IOS_OFFICIAL) {
+                    $redisKeyToIos = sprintf(ChannelVersion::REDIS_APP_VERSION, $app->id, App::IOS, $channelId);
+                    yii::$app->redis->del($redisKeyToIos);
+                } else {
+                    $redisKeyToAndroid = sprintf(ChannelVersion::REDIS_APP_VERSION, $app->id, App::ANDROID, $channelId);
+                    yii::$app->redis->del($redisKeyToAndroid);
+                }
             }
-            // 预防缓存雪崩让过期时间加一个随机值
-            yii::$app->redis->expire($redisKey, ChannelVersion::REDIS_APP_CHANNEL_VERSIONS_EXPIRE + rand(0, 60 * 60));
+        }
 
-            return $this->getLatest($model);
+        // 删除某个渠道的某个版本
+        if ($appId && $channelId && $version) {
+            if ($channelId == Channel::IOS_OFFICIAL) {
+                $redisKeyToIos = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::IOS, $channelId);
+                yii::$app->redis->hdel($redisKeyToIos, $version);
+            } else {
+                $redisKey = sprintf(ChannelVersion::REDIS_APP_VERSION, $appId, App::ANDROID, $channelId);
+                yii::$app->redis->hdel($redisKey, $version);
+            }
         }
     }
 
@@ -301,6 +344,12 @@ class ChannelVersion extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
+            if (!$this->isNewRecord) {
+                //软删除
+                if ($this->is_del == self::ACTIVE_DELETE) {
+                    $this->deleted_at = time();
+                }
+            }
             $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
@@ -317,6 +366,6 @@ class ChannelVersion extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->delRedisVersion(0, $this->channel_id);
+        (new ChannelVersion())->unsetRedisVersion($this->version->app_id, $this->channel_id);
     }
 }

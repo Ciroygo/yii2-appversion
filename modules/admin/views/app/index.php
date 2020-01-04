@@ -103,7 +103,7 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                         return Html::a('<span class="fa fa-android"></span> 安卓', $url, ['class' => 'btn btn-xs btn-success', 'title' => '安卓版本管理']);
                                     },
                                     'update' => function ($url, $model, $key) {
-                                        return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                        return Html::a('应用设置', $url, ['class' => 'btn btn-xs btn-primary']);
                                     },
                                     'delete' => function ($url, $model, $key) {
                                         return Html::a(
