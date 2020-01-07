@@ -160,8 +160,7 @@ class ChannelVersionController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = ChannelVersion::ACTIVE_DELETE;
-            $model->save(false);
+            $model->delete();
             Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
 

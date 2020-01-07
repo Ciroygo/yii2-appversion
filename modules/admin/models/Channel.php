@@ -182,6 +182,21 @@ class Channel extends ActiveRecord
     }
 
     /**
+     * 获取平台
+     *
+     * @param $channelId
+     * @return int
+     */
+    public static function getPlatform($channelId)
+    {
+        if ($channelId == Channel::IOS_OFFICIAL) {
+            return App::IOS;
+        } else {
+            return App::ANDROID;
+        }
+    }
+
+    /**
      * 保存前处理
      *
      * @param bool $insert
@@ -190,12 +205,6 @@ class Channel extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (!$this->isNewRecord) {
-                // 软删除
-                if ($this->is_del == self::ACTIVE_DELETE) {
-                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['channel_id' => $this->id]);
-                }
-            }
             $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
@@ -213,15 +222,18 @@ class Channel extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+        (new ChannelVersion())->flushCache(0, $this->id);
+    }
 
-        // 如果更新的是安卓官方渠道，需要更新所有渠道，因为其他渠道有肯能返回的是官方包
-        if ($this->id == Channel::ANDROID_OFFICIAL) {
-            $apps = App::find()->where(['is_del' => App::NOT_DELETED])->all();
-            foreach ($apps as $app) {
-                (new ChannelVersion())->unsetRedisVersion($app->id);
-            }
-        } else {
-            (new ChannelVersion())->unsetRedisVersion(0, $this->id);
-        }
+    /**
+     * 删除操作
+     *
+     * @return bool|void
+     */
+    public function beforeDelete()
+    {
+        ChannelVersion::deleteAll(['channel_id' => $this->id]);
+        (new ChannelVersion())->flushCache(0, $this->id);
+        return true;
     }
 }

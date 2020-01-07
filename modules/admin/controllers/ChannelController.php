@@ -144,8 +144,7 @@ class ChannelController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = Channel::ACTIVE_DELETE;
-            $model->save();
+            $model->delete();
             Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
         return $this->redirect(['index']);

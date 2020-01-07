@@ -68,8 +68,18 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                                 return $model->app->name ?? null;
                             }
                         ],
-                        'name',
-                        'min_name',
+                        [
+                            'attribute'=>'name',
+                            'value' => function ($model) {
+                                return $model->nameAttr ?? null;
+                            }
+                        ],
+                        [
+                            'attribute'=>'min_name',
+                            'value' => function ($model) {
+                                return $model->minNameAttr ?? null;
+                            }
+                        ],
                         [
                             'attribute'=>'type',
                             'value' => function ($model) {
@@ -108,24 +118,33 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             'buttons' => [
                                 'status-toggle' => function ($url, $model, $key) {
                                     if ($model->status == Version::STATUS_ON) {
-                                        return Html::a('下架', $url, ['class' => 'btn btn-xs btn-success']);
+                                        return Html::a('下架', $url, ['class' => 'btn btn-xs btn-success', 'data-pjax'=>"0", 'data-confirm'=>"您确定要下架吗？", 'data-method'=>"post"]);
                                     } else {
-                                        return Html::a('上架', $url, ['class' => 'btn btn-xs btn-warning']);
+                                        return Html::a('上架', $url, ['class' => 'btn btn-xs btn-warning', 'data-pjax'=>"0", 'data-confirm'=>"您确定要上架吗？", 'data-method'=>"post"]);
                                     }
                                 },
                                 'channel/index' => function ($url, $model, $key) {
-                                    $url = "/appversion/channel-version?ChannelVersionSearch%5Bversion_id%5D=$model->id";
-                                    return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
+                                    if ($model->status == Version::STATUS_OFF && $model->platform == App::ANDROID) {
+                                        $url = "/appversion/channel-version?ChannelVersionSearch%5Bversion_id%5D=$model->id";
+                                        return Html::a('渠道管理', $url, ['class' => 'btn btn-xs btn-success']);
+                                    }
+                                    return '';
                                 },
                                 'update' => function ($url, $model, $key) {
-                                    return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                    if ($model->status == Version::STATUS_OFF) {
+                                        return Html::a('编辑', $url, ['class' => 'btn btn-xs btn-primary']);
+                                    }
+                                    return '';
                                 },
                                 'delete' => function ($url, $model, $key) {
-                                    return Html::a(
-                                        '删除',
-                                        $url,
-                                        ['class' => 'btn btn-xs btn-danger', 'data-pjax'=>"0", 'data-confirm'=>"您确定要删除此项吗？", 'data-method'=>"post"]
-                                    );
+                                    if ($model->status == Version::STATUS_OFF) {
+                                        return Html::a(
+                                            '删除',
+                                            $url,
+                                            ['class' => 'btn btn-xs btn-danger', 'data-pjax' => "0", 'data-confirm' => "您确定要删除此项吗？", 'data-method' => "post"]
+                                        );
+                                    }
+                                    return '';
                                 },
                             ],
                             'header' => '操作',

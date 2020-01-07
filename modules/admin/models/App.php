@@ -222,6 +222,12 @@ class App extends ActiveRecord
         return false;
     }
 
+    /**
+     * 删除ip白名单缓存
+     *
+     * @param $appId
+     * @return bool
+     */
     public function delRedisAppScopeIps($appId)
     {
         $redisKey = sprintf(App::REDIS_APP_SCOPE_IPS, $appId);
@@ -239,13 +245,6 @@ class App extends ActiveRecord
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (!$this->isNewRecord) {
-                if ($this->is_del == self::ACTIVE_DELETE) {
-                    $version_ids = $this->getVersions()->select(['id'])->column();
-                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['in', 'version_id', $version_ids]);
-                    Version::updateAll(['is_del' => self::ACTIVE_DELETE], ['app_id' => $this->id]);
-                }
-            }
             $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
@@ -262,7 +261,20 @@ class App extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->unsetRedisVersion($this->id);
         $this->delRedisAppScopeIps($this->id);
+    }
+
+    /**
+     * 删除操作
+     *
+     * @return bool|void
+     */
+    public function beforeDelete()
+    {
+        $version_ids = $this->getVersions()->select(['id'])->column();
+        ChannelVersion::deleteAll(['in', 'version_id', $version_ids]);
+        Version::deleteAll(['app_id' => $this->id]);
+        (new ChannelVersion())->flushCache($this->id);
+        return true;
     }
 }

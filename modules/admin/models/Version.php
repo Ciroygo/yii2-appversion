@@ -101,6 +101,11 @@ class Version extends ActiveRecord
     ];
 
     /**
+     * ip 白名单
+     */
+    const SCOPE_IP_SUFFIX = '_scope';
+
+    /**
      * 表名
      *
      * @return string
@@ -118,12 +123,12 @@ class Version extends ActiveRecord
     public function rules()
     {
         return [
-            ['name', 'unique', 'targetAttribute' => ['app_id', 'platform', 'name', 'deleted_at'], 'message' => '该应用版本已经创建了！'],
-            [['app_id', 'name', 'min_name', 'type', 'scope', 'platform'], 'required'],
+            ['nameAttr', 'unique', 'targetAttribute' => ['app_id', 'platform', 'name', 'deleted_at'], 'message' => '该应用版本已经创建了！'],
+            [['app_id', 'nameAttr', 'minNameAttr', 'type', 'scope', 'platform', 'desc'], 'required'],
             [['app_id', 'type', 'platform', 'scope', 'status', 'operated_id', 'is_del', 'created_at', 'updated_at', 'deleted_at'], 'integer'],
             [['desc', 'comment'], 'string'],
-            [['name', 'min_name'], 'match', 'pattern'=>'/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', 'message'=>'格式形如为 999.999.999'],
-            [['name', 'min_name'], 'string', 'max' => 64],
+            [['nameAttr', 'minNameAttr'], 'match', 'pattern'=>'/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', 'message'=>'格式形如为 999.999.999'],
+            [['nameAttr', 'minNameAttr'], 'string', 'max' => 64],
         ];
     }
 
@@ -138,7 +143,9 @@ class Version extends ActiveRecord
             'id' => 'ID',
             'app_id' => '所属应用',
             'name' => '版本名',
+            'nameAttr' => '版本名',
             'min_name' => '最小版本名',
+            'minNameAttr' => '最小版本名',
             'type' => '更新类型',
             'platform' => '平台',
             'scope' => '发布范围',
@@ -152,6 +159,81 @@ class Version extends ActiveRecord
             'updated_at' => '更新时间',
             'deleted_at' => 'Deleted At',
         ];
+    }
+
+    /**
+     * 版本号修改器
+     *
+     * @return bool|float|int
+     */
+    public function getNameAttr()
+    {
+        return self::nameIntToStr($this->name);
+    }
+
+    /**
+     * 版本号设置器
+     *
+     * @param $name
+     */
+    public function setNameAttr($name)
+    {
+        $this->name = self::nameStrToInt($name);
+    }
+
+    /**
+     * 最小版本号修改器
+     *
+     * @return bool|float|int
+     */
+    public function getMinNameAttr()
+    {
+        return self::nameIntToStr($this->min_name);
+    }
+
+    /**
+     * 最小版本号设置器
+     *
+     * @param $min_name
+     */
+    public function setMinNameAttr($min_name)
+    {
+        $this->min_name = self::nameStrToInt($min_name);
+    }
+
+    /**
+     * 版本号转换
+     *
+     * @param $name
+     * @return bool|float|int
+     */
+    public static function nameStrToInt($name)
+    {
+        $ret = preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/', $name);
+        if ($ret) {
+            list($major, $minor, $sub) = explode('.', $name);
+            $versionCode = 1000000000 + $major * 1000000 + $minor * 1000 + $sub;
+            return $versionCode;
+        }
+        return false;
+    }
+
+    /**
+     * 版本号转换
+     *
+     * @param $name
+     * @return bool|float|int
+     */
+    public static function nameIntToStr($name)
+    {
+        $ret = preg_match('/^[1][0-9]{9}$/', $name);
+        if ($ret) {
+            $sub = $name%1000;
+            $minor = $name/1000%1000;
+            $major = $name/1000000%1000;
+            return $major . "." . $minor . "." . $sub;
+        }
+        return false;
     }
 
     /**
@@ -218,16 +300,9 @@ class Version extends ActiveRecord
     {
         if (parent::beforeSave($insert)) {
             if ($this->isNewRecord) {
-                $this->operated_id = Yii::$app->user->id;
                 $this->status = self::STATUS_OFF;
-            } else {
-                //软删除
-                if ($this->is_del == self::ACTIVE_DELETE) {
-                    $this->deleted_at = time();
-                    ChannelVersion::updateAll(['is_del' => self::ACTIVE_DELETE], ['version_id' => $this->id]);
-                }
-                $this->operated_id = Yii::$app->user->id;
             }
+            $this->operated_id = Yii::$app->user->id;
             return true;
         } else {
             return false;
@@ -243,6 +318,18 @@ class Version extends ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
-        (new ChannelVersion())->unsetRedisVersion($this->app_id);
+        (new ChannelVersion())->flushCache($this->app_id);
+    }
+
+    /**
+     * 删除操作
+     *
+     * @return bool|void
+     */
+    public function beforeDelete()
+    {
+        ChannelVersion::deleteAll(['version_id' => $this->id]);
+        (new ChannelVersion())->flushCache($this->app_id);
+        return true;
     }
 }

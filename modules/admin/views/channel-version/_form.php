@@ -28,7 +28,7 @@ use yiiplus\appversion\modules\admin\models\Channel;
 </a>
 EOF;
     ?>
-    <?= $form->field($model, 'channel_id')->dropdownList(Channel::getChannelOptions($version, $model->channel_id))->label("渠道选择" . $html); ?>
+    <?= $form->field($model, 'channel_id')->dropdownList(Channel::getChannelOptions($version, $model->channel_id), $model->channel_id ? ["disabled" => 'disabled'] : [])->label("渠道选择" . $html); ?>
     <div class="collapse" id="channelHelp">
         <div class="well">
             <h4>1 IOS</h4>

@@ -10,7 +10,7 @@ use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $model yiiplus\appversion\modules\admin\models\Version */
 /* @var $form yii\widgets\ActiveForm */
-/* @var $channelVersions yii\widgets\ActiveForm */
+/* @var $channelVersion yii\widgets\ActiveForm */
 ?>
 
 <div class="version-form">
@@ -25,9 +25,9 @@ use yii\widgets\Pjax;
 
     <?= $form->field($model, 'platform')->dropdownList(App::PLATFORM_OPTIONS, ['prompt'=>'选择平台', "disabled" => 'disabled']) ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'nameAttr')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'min_name')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'minNameAttr')->textInput(['maxlength' => true]) ?>
 
     <?php
     $html =  <<<EOF
@@ -84,6 +84,12 @@ EOF;
             根据 APP 管理里面设定的 IP 地址来进行更新，符合 IP白名单的，则会传递更新信息
         </div>
     </div>
+
+    <?php
+    if ($channelVersion) {
+        echo $form->field($channelVersion, 'url')->textInput(['maxlength' => true]);
+    }
+    ?>
 
     <?php
     $html =  <<<EOF

@@ -92,8 +92,11 @@ if (!empty(Yii::$app->session->getFlash('success'))) {
                             ],
                             [
                                 'class' => 'yii\grid\ActionColumn',
-                                'template' => '{version-apple} {version-android} {update} {delete}',
+                                'template' => '{flush-cache} {version-apple} {version-android} {update} {delete}',
                                 'buttons' => [
+                                    'flush-cache' => function ($url, $model, $key) {
+                                        return Html::a('刷新缓存', $url, ['class' => 'btn btn-xs btn-info']);
+                                    },
                                     'version-apple' => function ($url, $model, $key) {
                                         $url = "/appversion/version?VersionSearch%5Bapp_id%5D=$model->id&VersionSearch%5Bplatform%5D=1";
                                         return Html::a('<span class="fa fa-apple"></span> 苹果', $url, ['class' => 'btn btn-xs btn-success', 'title' => '苹果版本管理']);

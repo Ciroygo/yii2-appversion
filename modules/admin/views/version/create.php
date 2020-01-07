@@ -18,6 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="col-sm-6 col-sm-offset-3">
                     <?= $this->render('_form', [
                         'model' => $model,
+                        'channelVersion' => $channelVersion
                     ]) ?>
                 </div>
             </div>

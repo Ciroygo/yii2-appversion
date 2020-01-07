@@ -15,12 +15,14 @@
 namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
+use yii\db\StaleObjectException;
 use yii\web\Response;
 use yiiplus\appversion\modules\admin\models\App;
 use yiiplus\appversion\modules\admin\models\AppSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yiiplus\appversion\modules\admin\models\ChannelVersion;
 
 /**
  * AppController 应用管理
@@ -106,19 +108,33 @@ class AppController extends Controller
         ]);
     }
 
+    /**
+     * 缓存重建
+     *
+     * @param $id
+     * @return Response
+     */
+    public function actionFlushCache($id)
+    {
+        (new ChannelVersion())->flushCache($id);
+        Yii::$app->getSession()->setFlash('success', '刷新成功！');
+        return $this->redirect(['index']);
+    }
 
     /**
      * 应用删除
      *
      * @param $id
+     *
      * @return Response
      * @throws NotFoundHttpException
+     * @throws StaleObjectException
+     * @throws \Throwable
      */
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = App::ACTIVE_DELETE;
-            $model->save();
+            $model->delete();
             Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
 

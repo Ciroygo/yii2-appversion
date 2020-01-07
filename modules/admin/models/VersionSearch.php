@@ -99,6 +99,8 @@ class VersionSearch extends Version
 
         $query->andWhere(['is_del' => self::NOT_DELETED]);
 
+        $query->orderBy(['name' => SORT_DESC]);
+
         return $dataProvider;
     }
 }

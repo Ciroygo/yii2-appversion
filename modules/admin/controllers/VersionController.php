@@ -16,6 +16,9 @@ namespace yiiplus\appversion\modules\admin\controllers;
 
 use Yii;
 use yii\web\Response;
+use yiiplus\appversion\modules\admin\models\App;
+use yiiplus\appversion\modules\admin\models\Channel;
+use yiiplus\appversion\modules\admin\models\ChannelVersion;
 use yiiplus\appversion\modules\admin\models\Version;
 use yiiplus\appversion\modules\admin\models\VersionSearch;
 use yii\web\Controller;
@@ -79,6 +82,8 @@ class VersionController extends Controller
     public function actionCreate($app_id = false, $platform = false)
     {
         $model = new Version();
+        $channelVersion = new ChannelVersion();
+
         if ($app_id) {
             $model->app_id = $app_id;
         }
@@ -87,12 +92,18 @@ class VersionController extends Controller
         }
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            if ($platform == App::IOS) {
+                $channelVersion->load(Yii::$app->request->post(), null);
+                $channelVersion->channel_id = Channel::IOS_OFFICIAL;
+                $model->link('channelVersions', $channelVersion);
+            }
             Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('create', [
             'model' => $model,
+            'channelVersion' => $channelVersion
         ]);
     }
 
@@ -106,14 +117,23 @@ class VersionController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $channelVersion = null;
+        if ($model && $model->platform == App::IOS) {
+            $channelVersion = $model->getChannelVersions()->where(['channel_id' => Channel::IOS_OFFICIAL])->one();
+        }
 
         if ($model->load(Yii::$app->request->post(), null) && $model->save()) {
+            if ($model->platform == App::IOS) {
+                $channelVersion->load(Yii::$app->request->post(), null);
+                $channelVersion->save();
+            }
             Yii::$app->getSession()->setFlash('success', '保存成功！');
             return $this->redirect(['index',  'VersionSearch[platform]' => $model->platform, 'VersionSearch[app_id]' => $model->app_id]);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'channelVersion' => $channelVersion
         ]);
     }
 
@@ -145,8 +165,7 @@ class VersionController extends Controller
     public function actionDelete($id)
     {
         if ($model = $this->findModel($id)) {
-            $model->is_del = Version::ACTIVE_DELETE;
-            $model->save();
+            $model->delete();
             Yii::$app->getSession()->setFlash('success', '删除成功！');
         }
 
